@@ -13,22 +13,22 @@ public class RepeatCharacterComponent : RegexComponent
         _requireOne = requireOne;
     }
 
-    public override (bool doesMatch, bool canAdvance, bool mustAdvance) IsMatch(char character)
+    public override RegexComponentResult IsMatch(char character)
     {
         var result = _toRepeat.IsMatch(character);
-        if (result.doesMatch)
+        if (result.Overlaps(RegexComponentResult.Passed))
         {
-            return (true, true, false);
+            return RegexComponentResult.Passed | RegexComponentResult.CanProceed | RegexComponentResult.MustProceed;
         }
         else
         {
             if (_requireOne)
             {
-                return (false, false, false);
+                return RegexComponentResult.None;
             }
             else
             {
-                return (false, true, true);
+                return RegexComponentResult.CanProceed | RegexComponentResult.MustProceed;
             }
         }
     }

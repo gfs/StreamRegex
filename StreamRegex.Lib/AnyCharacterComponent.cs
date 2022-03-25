@@ -6,8 +6,8 @@ public class AnyCharacterComponent : RegexComponent
     {
     }
 
-    public override (bool doesMatch, bool canAdvance, bool mustAdvance) IsMatch(char character)
+    public override RegexComponentResult IsMatch(char character)
     {
-        return (true, true, true);
+        return RegexComponentResult.Passed | RegexComponentResult.CanProceed | RegexComponentResult.MustProceed;
     }
 }

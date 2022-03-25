@@ -8,9 +8,8 @@ public class ExactCharacterComponent : RegexComponent
         _characterToMatch = characterToMatch;
     }
 
-    public override (bool doesMatch, bool canAdvance, bool mustAdvance) IsMatch(char character)
+    public override RegexComponentResult IsMatch(char character)
     {
-        bool result = character.Equals(_characterToMatch);
-        return (result, result, result);
+        return character.Equals(_characterToMatch) ? RegexComponentResult.Passed | RegexComponentResult.CanProceed | RegexComponentResult.MustProceed : RegexComponentResult.None;
     }
 }
