@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -51,34 +52,46 @@ public class StreamRegex
         return GetFirstMatchPosition(toMatch) != -1;
     }
     
-    public long GetFirstMatchPosition(Stream toMatch)
+    public StreamRegexMatch? Match(Stream toMatch)
     {
         var curState = _states[0]; 
         byte[] buffer = new byte[_bufferSize];
         long resultPosition = toMatch.Position;
         long counter = 0;
         var numBytes = toMatch.Read(buffer, 0, _bufferSize);
+        StringBuilder match = new();
         while (numBytes > 0)
         {
             for (int byteNum = 0; byteNum < numBytes; byteNum++)
             {
+                char character = (char) buffer[byteNum];
                 counter++;
-                var nextState = curState.Transition((char)buffer[byteNum]);
-                if (nextState == _states[0] && !curState.Accepts((char)buffer[byteNum]))
+                var nextState = curState.Transition(character);
+                if (nextState == _states[0] && !curState.Accepts(character))
                 {
                     resultPosition += counter;
                     counter = 0;
+                    match.Clear();
+                }
+                else
+                {
+                    match.Append(character);
                 }
                 curState = nextState;
                 if (curState.IsFinal)
                 {
-                    return resultPosition;
+                    return new StreamRegexMatch(match.ToString(), resultPosition);
                 }
             }
 
             numBytes = toMatch.Read(buffer, 0, _bufferSize);
         }
 
-        return -1;
+        return null;
+    }
+    
+    public long GetFirstMatchPosition(Stream toMatch)
+    {
+        return Match(toMatch)?.position ?? -1;
     }
 }

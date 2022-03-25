@@ -11,6 +11,9 @@ public class RepeatCharacterZeroPlusState : BaseState
     {
         return _previousState.Accepts(character);
     }
+    
+    // TODO: This needs backtracking for cases like '[ce]*c' matched against 'racecar'.
+    // This will greedily match up to racec, and then be able to match the next c.
     public override IState Transition(char character)
     {
         if (_previousState.Accepts(character))

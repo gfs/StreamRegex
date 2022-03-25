@@ -34,7 +34,7 @@ public static class StateMachineFactory
                 var scoopedCharacters = pattern.IndexOf(']', i);
                 if (scoopedCharacters != -1)
                 {
-                    toAdd = new ComponentGroupState(pattern.Substring(i+1,scoopedCharacters - i));
+                    toAdd = new ComponentGroupState(pattern.Substring(i+1,scoopedCharacters - (i+1)));
                     i = scoopedCharacters;
                 }
                 else
@@ -73,9 +73,9 @@ public static class StateMachineFactory
             toAdd.Failure = initialState;
             states.Push(toAdd);
         }
-
-        states.Peek().Success = new FinalState();
-        
+        var finalState = new FinalState();
+        states.Peek().Success = finalState;
+        states.Push(finalState);
         return new StreamRegex(states.Reverse().ToList());
     }
 }

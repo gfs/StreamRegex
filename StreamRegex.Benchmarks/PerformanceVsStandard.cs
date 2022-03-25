@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Lib;
+using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
@@ -45,6 +46,17 @@ public class PerformanceVsStandard
     {
         var stateMachine = StateMachineFactory.CreateStateMachine(_pattern);
         if (stateMachine.GetFirstMatchPosition(_stream) == -1)
+        {
+            throw new Exception("The regex didn't match");
+        }
+    }
+    
+    [Benchmark]
+    public void NFAStateMachine()
+    {
+        var stateMachine = NFAStateMachineFactory.CreateStateMachine(_pattern);
+        var match = stateMachine.Match(_stream);
+        if (match is null)
         {
             throw new Exception("The regex didn't match");
         }

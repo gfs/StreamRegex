@@ -38,7 +38,9 @@
       <None Update="TargetStart.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Remove="Tiny.txt" />
+      <None Update="Tiny.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
