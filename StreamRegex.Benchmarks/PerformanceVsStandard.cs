@@ -70,10 +70,20 @@ public class PerformanceVsStandard
         _streaming.GetFirstMatchPosition(_pattern, _stream);
     }
     
-    [Benchmark]
+    // [Benchmark]
     public void StreamRegexPreCompiled()
     {
         if (_streamingPreCompiled.GetFirstMatchPosition(_pattern, _stream) == -1)
+        {
+            throw new Exception("The regex didn't match");
+        }
+    }
+
+    [Benchmark]
+    public void StateMachine()
+    {
+        var stateMachine = StateMachineFactory.CreateStateMachine(_pattern);
+        if (stateMachine.GetMatchPosition(_stream) == -1)
         {
             throw new Exception("The regex didn't match");
         }
