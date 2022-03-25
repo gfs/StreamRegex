@@ -26,7 +26,7 @@ public class PerformanceVsStandard
         _stream.Dispose();
     }
     
-    // [Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
+    //[Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
     [Params("175MB.txt")]
     public string TestFileName { get; set; }
     
@@ -44,7 +44,7 @@ public class PerformanceVsStandard
     public void StateMachine()
     {
         var stateMachine = StateMachineFactory.CreateStateMachine(_pattern);
-        if (stateMachine.GetMatchPosition(_stream) == -1)
+        if (stateMachine.GetFirstMatchPosition(_stream) == -1)
         {
             throw new Exception("The regex didn't match");
         }

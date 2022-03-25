@@ -17,7 +17,14 @@ public class UnitTest1
     {
         var stream = StringToStream(ShortTestString);
         var stateMachine = StateMachineFactory.CreateStateMachine(ShortPattern);
-        Assert.AreEqual(5, stateMachine.GetMatchPosition(stream));
+        Assert.AreEqual(5, stateMachine.GetFirstMatchPosition(stream));
+    }
+    
+    [TestMethod]
+    public void TestStateMachineValidation()
+    {
+        var stateMachine = StateMachineFactory.CreateStateMachine(ShortPattern);
+        Assert.IsTrue(stateMachine.ValidateStateMachine());
     }
 
     private Stream StringToStream(string str)

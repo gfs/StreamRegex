@@ -7,7 +7,7 @@ public static class StateMachineFactory
     /// </summary>
     /// <param name="pattern"></param>
     /// <returns></returns>
-    public static StateMachine CreateStateMachine(string pattern)
+    public static StreamRegex CreateStateMachine(string pattern)
     {
         Stack<IState> states = new();
         IState initialState = new NopState();
@@ -76,6 +76,6 @@ public static class StateMachineFactory
 
         states.Peek().Success = new FinalState();
         
-        return new StateMachine(states.Reverse().ToList());
+        return new StreamRegex(states.Reverse().ToList());
     }
 }
