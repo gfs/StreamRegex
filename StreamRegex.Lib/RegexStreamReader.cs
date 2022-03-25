@@ -16,6 +16,14 @@ public class RegexStreamReader
         _stream = stream;
     }
 
+    public void CompileAndCachePattern(string pattern)
+    {
+        if (!_regexCache.ContainsKey(pattern))
+        {
+            _regexCache[pattern] = new List<RegexComponent>(ParsePattern(pattern));
+        }
+    }
+    
     private IEnumerable<RegexComponent> ParsePattern(string pattern)
     {
         Stack<RegexComponent> stack = new();
@@ -99,31 +107,34 @@ public class RegexStreamReader
         return _characterQueue.Dequeue();
     }
     
-    public bool IsMatch(string pattern)
+    public long GetFirstMatchPosition(string pattern)
     {
-        if (!_regexCache.ContainsKey(pattern))
-        {
-            _regexCache[pattern] = new List<RegexComponent>(ParsePattern(pattern));
-        }
-        
-        HashSet<int> positions = new(){0};
+        CompileAndCachePattern(pattern);
+
+        long resultPosition = _stream.Position;
+        HashSet<int> regexPositions = new(){0};
+        HashSet<int> newRegexPositions = new(){0};
         while (GetNextCharacter() is char character)
         {
-            // Always allow to start over
-            HashSet<int> newPositions = new(){0};
-            foreach (int position in positions)
+            resultPosition++;
+            foreach (int regexPosition in regexPositions)
             {
-                var result = GetNextPositions(pattern, position, character);
+                var result = GetNextPositions(pattern, regexPosition, character);
                 if (!result.Any())
                 {
-                    return true;
+                    return resultPosition;
                 }
-                newPositions.UnionWith(result);
+                newRegexPositions.UnionWith(result);
             }
 
-            positions = newPositions;
+            // Swap new and old to avoid allocating a new hashset
+            (regexPositions, newRegexPositions) = (newRegexPositions, regexPositions);
+            // Clear the old positions
+            newRegexPositions.Clear();
+            // Always allow to start over
+            newRegexPositions.Add(0);
         }
-        return false;
+        return -1;
     }
 
     private HashSet<int> GetNextPositions(string pattern, int position, char character)
