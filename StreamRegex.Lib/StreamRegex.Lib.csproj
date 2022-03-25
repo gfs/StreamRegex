@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Authors>Gabe Stocco</Authors>
+        <Description>StreamRegex exposes a RegexStreamReader for checking regexes against Streams.</Description>
+        <Copyright>Gabe Stocco 2022</Copyright>
+        <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>Regex, Stream</PackageTags>
+    </PropertyGroup>
+
+</Project>

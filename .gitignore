@@ -1,0 +1,10 @@
+#.NET build output
+bin/
+obj/
+# Rider
+**/.idea/workspace.xml 
+**/.idea/tasks.xml
+**/.idea/vcs.xml
+**/.idea/encodings.xml
+**/.idea/indexlayout.xml
+**/.idea/projectSettingsUpdater.xml
