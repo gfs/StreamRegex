@@ -17,6 +17,4 @@ public class ExactCharacterDfaState : BaseDfaState
     {
         return character.Equals(_character);
     }
-
-    public override bool IsFinal { get; } = false;
 }

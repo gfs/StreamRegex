@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Lib;
+using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 using StreamRegex.Lib.RegexStreamExtensions;
 
@@ -9,11 +10,11 @@ namespace StreamRegex.Benchmarks;
 public class PerformanceVsStandard
 {
     private readonly Regex _compiled;
-    private const string _pattern = "racecar";
-    private Stream _stream;
+    private const string Pattern = "racecar";
+    private Stream _stream = new MemoryStream();
     public PerformanceVsStandard()
     {
-        _compiled = new Regex(_pattern, RegexOptions.Compiled);
+        _compiled = new Regex(Pattern, RegexOptions.Compiled);
     }
 
     [IterationSetup]
@@ -45,7 +46,7 @@ public class PerformanceVsStandard
     // [Benchmark]
     public void StateMachine()
     {
-        var stateMachine = StateMachineFactory.CreateStateMachine(_pattern);
+        var stateMachine = StateMachineFactory.CreateStateMachine(Pattern);
         if (stateMachine.GetFirstMatchPosition(_stream) == -1)
         {
             throw new Exception("The regex didn't match");
@@ -55,7 +56,7 @@ public class PerformanceVsStandard
     // [Benchmark]
     public void NFAStateMachine()
     {
-        var stateMachine = NfaStateMachineFactory.CreateStateMachine(_pattern);
+        var stateMachine = NfaStateMachineFactory.CreateStateMachine(Pattern);
         var match = stateMachine.Match(_stream);
         if (match is null)
         {

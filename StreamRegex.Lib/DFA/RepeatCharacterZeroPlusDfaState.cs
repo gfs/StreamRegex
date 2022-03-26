@@ -29,5 +29,4 @@ public class RepeatCharacterZeroPlusDfaState : BaseDfaState
 
         return Failure;
     }
-    public override bool IsFinal { get; } = false;
 }

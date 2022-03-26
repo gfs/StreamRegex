@@ -24,13 +24,26 @@ public class ExtensionTests
     }
     
     [TestMethod]
-    public void TestMatchFunctinality()
+    public void TestMatchFunctionality()
     {
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
         StreamReader content = new StreamReader(File.OpenRead("TargetMiddle.txt"));
         var res = compiled.GetFirstMatch(content);
-        Assert.IsTrue(res.matches);
-        Assert.AreEqual("racecar",res.match);
+        Assert.IsTrue(res.Matches);
+        Assert.AreEqual("racecar",res.MatchContent);
+    }
+
+    [TestMethod]
+    public void TestPositionFunctionality()
+    {
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        string contentString = File.ReadAllText("TargetMiddle.txt");
+        StreamReader content = new StreamReader(File.OpenRead("TargetMiddle.txt"));
+        var res = compiled.GetFirstMatch(content);
+        var res2 = compiled.Match(contentString);
+        Assert.IsTrue(res.Matches);
+        Assert.AreEqual("racecar",res.MatchContent);
+        Assert.AreEqual(res.MatchPosition, res2.Index);
     }
     
     private Stream StringToStream(string str)

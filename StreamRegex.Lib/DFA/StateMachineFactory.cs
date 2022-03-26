@@ -1,6 +1,4 @@
-﻿using StreamRegex.Lib.DFA;
-
-namespace StreamRegex.Lib;
+﻿namespace StreamRegex.Lib.DFA;
 
 public static class StateMachineFactory
 {

@@ -12,6 +12,4 @@ public class AnyCharacterDfaState : BaseDfaState
     {
         return Accepts(character) ? Success : Failure;
     }
-
-    public override bool IsFinal { get; } = false;
 }

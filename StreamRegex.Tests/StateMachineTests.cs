@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Unicode;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StreamRegex.Lib;
+using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Tests;

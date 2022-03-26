@@ -12,6 +12,4 @@ public class NopDfaState : BaseDfaState
 
     public override IDfaState Transition(char character) => this;
     public override bool Accepts(char character) => false;
-
-    public override bool IsFinal { get; } = false;
 }

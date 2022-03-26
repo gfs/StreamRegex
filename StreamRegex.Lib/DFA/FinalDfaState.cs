@@ -8,9 +8,9 @@ public class FinalDfaState : BaseDfaState
     {
         Success = this;
         Failure = this;
+        IsFinal = true;
     }
 
     public override bool Accepts(char character) => true;
     public override IDfaState Transition(char character) => this;
-    public override bool IsFinal { get; } = true;
 }

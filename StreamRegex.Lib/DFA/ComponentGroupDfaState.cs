@@ -18,6 +18,4 @@ public class ComponentGroupDfaState : BaseDfaState
     {
         return _characters.Contains(character);
     }
-
-    public override bool IsFinal { get; } = false;
 }

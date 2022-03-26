@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Running;
 using StreamRegex.Benchmarks;
 using StreamRegex.Lib;
+using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 
 var summary = BenchmarkRunner.Run<PerformanceVsStandard>();
