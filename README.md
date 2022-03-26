@@ -5,7 +5,7 @@ A .NET Library with Extension Methods for performing Regex operations on Streams
 
 When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
 
-## To use
+## To Use
 
 ### StreamReader
 ```csharp
@@ -32,7 +32,7 @@ else
     // No match
 }
 
-// Check if there is any match
+// Alternately: check if there is any match
 if (myRegex.IsMatch(reader))
 {
     // At least one match
@@ -42,7 +42,7 @@ else
     // No matches
 }
 
-// Get only the first match
+// Alternately: get only the first match
 RegexStreamMatch match = myRegex.GetFirstMatch(reader);
 if (match.Matches)
 {
@@ -80,3 +80,6 @@ else
     // No match
 }
 ```
+
+### Dealing with multiple regexes
+Since these extension methods will read directly off the Stream, if you are using multiple Regexes you can use the `RegexCache` component of the library to run multiple Regexes with one read from the Stream.
