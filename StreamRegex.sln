@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Lib", "StreamRegex.Lib\StreamRegex.Lib.csproj", "{0B544375-C166-4C21-8255-39458E26AB6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Automata", "StreamRegex.Automata\StreamRegex.Automata.csproj", "{0B544375-C166-4C21-8255-39458E26AB6E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Tests", "StreamRegex.Tests\StreamRegex.Tests.csproj", "{84F43E8E-04CF-464C-B3D0-05B7022ABBC0}"
 EndProject

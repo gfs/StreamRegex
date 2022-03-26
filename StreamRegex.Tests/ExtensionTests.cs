@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StreamRegex.Extensions;
-using StreamRegex.Lib.RegexStreamExtensions;
 
 
 namespace StreamRegex.Tests;

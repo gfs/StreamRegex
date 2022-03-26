@@ -16,7 +16,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\StreamRegex.Extensions\StreamRegex.Extensions.csproj" />
-      <ProjectReference Include="..\StreamRegex.Lib\StreamRegex.Lib.csproj" />
+      <ProjectReference Include="..\StreamRegex.Automata\StreamRegex.Automata.csproj" />
     </ItemGroup>
 
     <ItemGroup>

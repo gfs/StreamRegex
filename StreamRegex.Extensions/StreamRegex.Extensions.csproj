@@ -10,4 +10,13 @@
         <Copyright>Gabe Stocco 2022</Copyright>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Content Include="..\LICENSE">
+        <Link>LICENSE</Link>
+      </Content>
+      <Content Include="..\README.md">
+        <Link>README.md</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>

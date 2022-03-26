@@ -12,6 +12,7 @@
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>Regex, Stream</PackageTags>
+        <RootNamespace>StreamRegex.Lib</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
