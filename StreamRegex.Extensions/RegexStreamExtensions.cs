@@ -1,7 +1,6 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace StreamRegex.Lib.RegexStreamExtensions;
+namespace StreamRegex.Extensions;
 
 /// <summary>
 /// Match regexes in a stream up maximum length

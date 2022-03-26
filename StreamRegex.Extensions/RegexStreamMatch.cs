@@ -1,7 +1,6 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace StreamRegex.Lib.RegexStreamExtensions;
+namespace StreamRegex.Extensions;
 
 /// <summary>
 /// Holds a match from <see cref="StreamRegex.Lib.RegexStreamExtensions.GetFirstMatch"/>

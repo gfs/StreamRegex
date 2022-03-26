@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace StreamRegex.Lib.RegexStreamExtensions;
+namespace StreamRegex.Extensions;
 
 public class RegexCache : IEnumerable<Regex>
 {

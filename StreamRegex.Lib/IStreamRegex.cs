@@ -1,4 +1,6 @@
-﻿namespace StreamRegex.Lib;
+﻿using StreamRegex.Lib.DFA;
+
+namespace StreamRegex.Lib;
 
 public interface IStreamRegex
 {

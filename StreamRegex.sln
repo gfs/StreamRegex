@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Tests", "Stream
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Benchmarks", "StreamRegex.Benchmarks\StreamRegex.Benchmarks.csproj", "{424A43DA-5AEA-4EE4-B3F3-3437C4AA2953}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamRegex.Extensions", "StreamRegex.Extensions\StreamRegex.Extensions.csproj", "{77EF5BC3-A2DD-41E1-AA47-22B99C424C80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{424A43DA-5AEA-4EE4-B3F3-3437C4AA2953}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{424A43DA-5AEA-4EE4-B3F3-3437C4AA2953}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{424A43DA-5AEA-4EE4-B3F3-3437C4AA2953}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77EF5BC3-A2DD-41E1-AA47-22B99C424C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77EF5BC3-A2DD-41E1-AA47-22B99C424C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77EF5BC3-A2DD-41E1-AA47-22B99C424C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77EF5BC3-A2DD-41E1-AA47-22B99C424C80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
