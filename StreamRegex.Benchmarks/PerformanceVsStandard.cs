@@ -1,9 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
-using StreamRegex.Lib;
+using StreamRegex.Extensions;
 using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
-using StreamRegex.Lib.RegexStreamExtensions;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
@@ -29,8 +28,8 @@ public class PerformanceVsStandard
         _stream.Dispose();
     }
     
-    [Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
-    //[Params("175MB.txt")]
+    //[Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
+    [Params("175MB.txt")]
     public string TestFileName { get; set; }
     
     [Benchmark(Baseline = true)]

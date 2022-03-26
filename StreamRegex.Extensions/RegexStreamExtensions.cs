@@ -3,19 +3,20 @@
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// Match regexes in a stream up maximum length
+/// Extends the <see cref="Regex"/> class with functionality to check against <see cref="StreamReader"/>.
 /// </summary>
 public static class RegexStreamExtensions
 {
     private static int _minimumBufferSize = 4096;
 
     /// <summary>
-    /// Find if a Stream matches a regular expression.
+    /// Find if a StreamReader matches a regular expression.
     /// </summary>
     /// <param name="engine">The Regex to operate with</param>
     /// <param name="toMatch">The StreamReader to match</param>
-    /// <param name="maxMatchLength">The maximum length of string which will be matched. Has a large impact on performance.</param>
-    /// <returns></returns>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A <see cref="RegexStreamMatch"/> object representing the first match. If there is no match, the <see cref="RegexStreamMatch.Matches"/> will be false, the <see cref="RegexStreamMatch.MatchContent"/> will be null.</returns>
+    /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
     {
         var bufferSize = maxMatchLength * 2;
@@ -46,12 +47,25 @@ public static class RegexStreamExtensions
     }
     
     /// <summary>
-    /// Find if a Stream matches a regular expression.
+    /// Find the first match for a <see cref="Regex"/> in a <see cref="Stream"/>
+    /// </summary>
+    /// <param name="engine">The Regex to operate with</param>
+    /// <param name="toMatch">The <see cref="Stream"/> to match</param>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A <see cref="RegexStreamMatch"/> object representing the first match. If there is no match, the <see cref="RegexStreamMatch.Matches"/> will be false, the <see cref="RegexStreamMatch.MatchContent"/> will be null.</returns>
+    public static RegexStreamMatch GetFirstMatch(this Regex engine, Stream toMatch, int maxMatchLength = 256)
+    {
+        using var reader = new StreamReader(toMatch);
+        return engine.GetFirstMatch(toMatch, maxMatchLength);
+    }
+    
+    /// <summary>
+    /// Find if a StreamReader matches a regular expression.
     /// </summary>
     /// <param name="engine">The Regex to operate with</param>
     /// <param name="toMatch">The StreamReader to match</param>
-    /// <param name="maxMatchLength">The maximum length of string which will be matched. Has a large impact on performance.</param>
-    /// <returns></returns>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A <see cref="RegexStreamMatch"/> object representing the first match. If there is no match, the <see cref="RegexStreamMatch.Matches"/> will be false, the <see cref="RegexStreamMatch.MatchContent"/> will be null.</returns>
     public static RegexStreamMatch GetFirstMatch(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
     {
         var bufferSize = maxMatchLength * 2;
@@ -88,14 +102,13 @@ public static class RegexStreamExtensions
     }
 
     /// <summary>
-    /// Find if a Stream matches a regular expression.
+    /// Find all matches for a given <see cref="Regex"/>
     /// </summary>
     /// <param name="engine">The Regex to operate with</param>
     /// <param name="toMatch">The StreamReader to match</param>
-    /// <param name="maxMatchLength">The maximum length of string which will be matched. Has a large impact on performance.</param>
-    /// <returns></returns>
-    public static RegexStreamMatchCollection GetMatchCollection(this Regex engine, StreamReader toMatch,
-        int maxMatchLength = 256)
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A <see cref="RegexStreamMatchCollection"/> object representing all matches. This object will be empty if there are no matches.</returns>
+    public static RegexStreamMatchCollection GetMatchCollection(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
     {
         var collection = new RegexStreamMatchCollection();
         var bufferSize = maxMatchLength * 2;
@@ -131,6 +144,13 @@ public static class RegexStreamExtensions
         return collection;
     }
 
+    /// <summary>
+    /// Find all matches for the engines in the given <see cref="RegexCache"/>
+    /// </summary>
+    /// <param name="engines">The Regexes to operate with</param>
+    /// <param name="toMatch">The StreamReader to match</param>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A <see cref="RegexStreamMatchCollection"/> object representing all matches. This object will be empty if there are no matches.</returns>
     public static RegexStreamMatchCollection GetMatchCollection(this RegexCache engines, StreamReader toMatch, int maxMatchLength = 256)
     {
         var collection = new RegexStreamMatchCollection();
