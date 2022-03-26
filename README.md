@@ -80,3 +80,8 @@ else
     // No match
 }
 ```
+
+## How it works
+A sliding buffer is used across the stream. The `maxMatchLength` parameter is the amount of overlap buffer to use to ensure no matches are missed across buffer boundaries.
+
+https://github.com/gfs/StreamRegex/blob/ed03c047f1d7c09701ca16c087cb713860a21083/StreamRegex.Extensions/RegexStreamExtensions.cs#L20-L47
