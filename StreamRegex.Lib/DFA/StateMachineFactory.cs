@@ -1,4 +1,6 @@
-﻿namespace StreamRegex.Lib;
+﻿using StreamRegex.Lib.DFA;
+
+namespace StreamRegex.Lib;
 
 public static class StateMachineFactory
 {
@@ -7,22 +9,22 @@ public static class StateMachineFactory
     /// </summary>
     /// <param name="pattern"></param>
     /// <returns></returns>
-    public static StreamRegex CreateStateMachine(string pattern)
+    public static DfaStreamRegex CreateStateMachine(string pattern)
     {
-        Stack<IState> states = new();
-        IState initialState = new NopState();
+        Stack<IDfaState> states = new();
+        IDfaState initialDfaState = new NopDfaState();
         for (int i = 0; i < pattern.Length; i++)
         {
-            IState? toAdd;
+            IDfaState? toAdd;
             if (char.IsLetterOrDigit(pattern[i]))
             {
-                toAdd = new ExactCharacterState(pattern[i]);
+                toAdd = new ExactCharacterDfaState(pattern[i]);
             }
             else if (pattern[i] == '\\')
             {
                 if (++i < pattern.Length)
                 {
-                    toAdd = new ExactCharacterState(pattern[i]);
+                    toAdd = new ExactCharacterDfaState(pattern[i]);
                 }
                 else
                 {
@@ -34,7 +36,7 @@ public static class StateMachineFactory
                 var scoopedCharacters = pattern.IndexOf(']', i);
                 if (scoopedCharacters != -1)
                 {
-                    toAdd = new ComponentGroupState(pattern.Substring(i+1,scoopedCharacters - (i+1)));
+                    toAdd = new ComponentGroupDfaState(pattern.Substring(i+1,scoopedCharacters - (i+1)));
                     i = scoopedCharacters;
                 }
                 else
@@ -44,17 +46,17 @@ public static class StateMachineFactory
             }
             else if (pattern[i].Equals('.'))
             {
-                toAdd = new AnyCharacterState();
+                toAdd = new AnyCharacterDfaState();
             }
             else if (pattern[i].Equals('*'))
             {
                 var last = states.Pop();
-                toAdd = new RepeatCharacterZeroPlusState(last);
+                toAdd = new RepeatCharacterZeroPlusDfaState(last);
             }
             else if (pattern[i].Equals('+'))
             {
                 var last = states.Peek();
-                toAdd = new RepeatCharacterZeroPlusState(last);
+                toAdd = new RepeatCharacterZeroPlusDfaState(last);
             }
             else
             {
@@ -63,19 +65,19 @@ public static class StateMachineFactory
             
             if (!states.Any())
             {
-                initialState = toAdd;
+                initialDfaState = toAdd;
             }
             else
             {
                 var peek = states.Peek();
                 peek.Success = toAdd;
             }
-            toAdd.Failure = initialState;
+            toAdd.Failure = initialDfaState;
             states.Push(toAdd);
         }
-        var finalState = new FinalState();
+        var finalState = new FinalDfaState();
         states.Peek().Success = finalState;
         states.Push(finalState);
-        return new StreamRegex(states.Reverse().ToList());
+        return new DfaStreamRegex(states.Reverse().ToList());
     }
 }

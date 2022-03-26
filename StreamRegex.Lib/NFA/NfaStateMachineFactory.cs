@@ -1,29 +1,29 @@
 ﻿namespace StreamRegex.Lib.NFA;
 
-public static class NFAStateMachineFactory
+public static class NfaStateMachineFactory
 {
     /// <summary>
     /// Create a state machine given a regex pattern
     /// </summary>
     /// <param name="pattern"></param>
     /// <returns></returns>
-    public static NFAStreamRegex CreateStateMachine(string pattern)
+    public static NfaStreamRegex CreateStateMachine(string pattern)
     {
-        INFAState initialState = new InitialNfaState();
-        Stack<INFAState> states = new();
+        INfaState initialState = new InitialNfaState();
+        Stack<INfaState> states = new();
         states.Push(initialState);
         for (int i = 0; i < pattern.Length; i++)
         {
-            INFAState? toAdd;
+            INfaState? toAdd;
             if (char.IsLetterOrDigit(pattern[i]))
             {
-                toAdd = new ExactCharacterNFAState(pattern[i]);
+                toAdd = new ExactCharacterNfaState(pattern[i]);
             }
             else if (pattern[i] == '\\')
             {
                 if (++i < pattern.Length)
                 {
-                    toAdd = new ExactCharacterNFAState(pattern[i]);
+                    toAdd = new ExactCharacterNfaState(pattern[i]);
                 }
                 else
                 {
@@ -35,7 +35,7 @@ public static class NFAStateMachineFactory
                 var scoopedCharacters = pattern.IndexOf(']', i);
                 if (scoopedCharacters != -1)
                 {
-                    toAdd = new ComponentGroupNFAState(pattern.Substring(i+1,scoopedCharacters - (i+1)));
+                    toAdd = new ComponentGroupNfaState(pattern.Substring(i+1,scoopedCharacters - (i+1)));
                     i = scoopedCharacters;
                 }
                 else
@@ -50,12 +50,12 @@ public static class NFAStateMachineFactory
             else if (pattern[i].Equals('*'))
             {
                 var last = states.Pop();
-                toAdd = new RepeatCharacterZeroPlusNFAState(last);
+                toAdd = new RepeatCharacterZeroPlusNfaState(last);
             }
             else if (pattern[i].Equals('+'))
             {
                 var last = states.Peek();
-                toAdd = new RepeatCharacterZeroPlusNFAState(last);
+                toAdd = new RepeatCharacterZeroPlusNfaState(last);
             }
             else if (pattern[i].Equals('?'))
             {
@@ -72,9 +72,14 @@ public static class NFAStateMachineFactory
             toAdd.Failure = initialState;
             states.Push(toAdd);
         }
-        var finalState = new FinalNFAState();
+        var finalState = new FinalNfaState();
         states.Peek().Success = finalState;
         states.Push(finalState);
-        return new NFAStreamRegex(states.Reverse().ToList());
+        var statesOut = states.Reverse().ToList();
+        for (int i = 0; i < statesOut.Count; i++)
+        {
+            statesOut[i].Index = i;
+        }
+        return new NfaStreamRegex(statesOut);
     }
 }

@@ -1,18 +1,21 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using StreamRegex.Lib.DFA;
 
 namespace StreamRegex.Lib.NFA;
 
-public class NFAStreamRegex
+public class NfaStreamRegex : IStreamRegex
 {
-    private List<INFAState> _states;
+    private List<INfaState> _states;
     private int _bufferSize = 4096;
     private readonly ILogger _logger;
 
-    internal NFAStreamRegex(List<INFAState> states, ILoggerFactory? loggerFactory = null)
+    internal NfaStreamRegex(List<INfaState> states, ILoggerFactory? loggerFactory = null)
     {
-        _logger = loggerFactory?.CreateLogger<StreamRegex>() ?? NullLogger<StreamRegex>.Instance;
+        _logger = loggerFactory?.CreateLogger<DfaStreamRegex>() ?? NullLogger<DfaStreamRegex>.Instance;
         _states = states;
     }
 
@@ -52,8 +55,22 @@ public class NFAStreamRegex
     
     public StreamRegexMatch? Match(Stream toMatch)
     {
-        HashSet<INFAState> currentStates = new() { _states[0] };
-        HashSet<INFAState> nextStates = new() { _states[0] };
+        Dictionary<INfaState, int> indexesOfStates = new Dictionary<INfaState, int>();
+        for (int i = 0; i < _states.Count; i++)
+        {
+            indexesOfStates[_states[i]] = i;
+        }
+        
+        // List<INfaState> currentStates = new();
+        // List<INfaState> nextStates = new();
+        // List<INfaState> seenNfaStates = new();
+        // currentStates.Add(_states[0]);
+
+        Span<bool> currentStatesBools = new bool[_states.Count];
+        Span<bool> nextStatesBools = new bool[_states.Count];
+        Span<bool> defaultBools = new bool[_states.Count];
+        currentStatesBools[0] = true;
+
         byte[] buffer = new byte[_bufferSize];
         long resultPosition = toMatch.Position;
         long counter = 0;
@@ -69,9 +86,18 @@ public class NFAStreamRegex
                 
                 any = false;
                 final = false;
-                foreach (var currentState in currentStates)
+                for (int i = 0; i < _states.Count; i++)
                 {
-                    foreach (var nextState in currentState.Transition((char) buffer[byteNum]))
+                    if (!currentStatesBools[i])
+                    {
+                        continue;
+                    }
+                    // if (seenNfaStates.Contains(currentStates[i]))
+                    // {
+                    //     continue;
+                    // }
+                    // seenNfaStates.Add(currentStates[i]);
+                    foreach (var nextState in _states[i].Transition((char) buffer[byteNum]))
                     {
                         if (nextState.IsFinal)
                         {
@@ -79,18 +105,17 @@ public class NFAStreamRegex
                             any = true;
                             goto LoopDone;
                         }
-                        
-                        if (nextState is not InitialNfaState)
+                    
+                        if (!nextState.IsInitial)
                         {
                             any = true;
                         }
 
-                        nextStates.Add(nextState);
+                        nextStatesBools[nextState.Index] = true;
                     }
                 }
-                
-                LoopDone:
 
+                LoopDone:
                 if (any)
                 {
                     match.Append((char) buffer[byteNum]);
@@ -107,9 +132,8 @@ public class NFAStreamRegex
                     return new StreamRegexMatch(match.ToString(), resultPosition);
                 }
                 
-                (currentStates, nextStates) = (nextStates, currentStates);
-                nextStates.Clear();
-                nextStates.Add(_states[0]);
+                nextStatesBools.CopyTo(currentStatesBools);
+                defaultBools.CopyTo(nextStatesBools);
             }
 
             numBytes = toMatch.Read(buffer, 0, _bufferSize);

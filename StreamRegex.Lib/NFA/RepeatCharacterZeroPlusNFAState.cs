@@ -1,9 +1,12 @@
 ﻿namespace StreamRegex.Lib.NFA;
 
-public class RepeatCharacterZeroPlusNFAState : BaseNFAState
+public class RepeatCharacterZeroPlusNfaState : BaseNfaState
 {
-    private readonly INFAState _previousState;
-    public RepeatCharacterZeroPlusNFAState(INFAState previousState)
+    private readonly INfaState _previousState;
+    private RepeatCharacterZeroPlusNfaState[]? _returnOnPrev;
+    private INfaState[]? _returnOnBoth;
+
+    public RepeatCharacterZeroPlusNfaState(INfaState previousState)
     {
         _previousState = previousState;
     }
@@ -12,28 +15,23 @@ public class RepeatCharacterZeroPlusNFAState : BaseNFAState
         return _previousState.Accepts(character);
     }
     
-    // TODO: This needs backtracking for cases like '[ce]*c' matched against 'racecar'.
-    // This will greedily match up to racec, and then be able to match the next c.
-    public override IEnumerable<INFAState> Transition(char character)
+    public override INfaState[] Transition(char character)
     {
         var prev = _previousState.Accepts(character);
         var next = Success.Accepts(character);
-        if (!prev && !next)
+
+        if (prev && next)
         {
-            yield return Failure;
-            yield break;
+            _returnOnBoth ??= Success.Transition(character).Append(Success).ToArray();
         }
         if (prev)
         {
-            yield return this;
+            return _returnOnPrev ??= new[] {this};
         }
         if (next)
         {
-            foreach (var nextTransition in Success.Transition(character))
-            {
-                yield return nextTransition;
-            }
+            return Success.Transition(character);
         }
+        return ReturnOnFailure ??= new[] {Failure};
     }
-    public override bool IsFinal { get; } = false;
 }

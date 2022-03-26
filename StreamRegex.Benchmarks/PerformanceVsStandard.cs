@@ -2,13 +2,14 @@
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Lib;
 using StreamRegex.Lib.NFA;
+using StreamRegex.Lib.RegexStreamExtensions;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
 public class PerformanceVsStandard
 {
     private readonly Regex _compiled;
-    private const string _pattern = "[ra]*ce*c[ar]*";
+    private const string _pattern = "racecar";
     private Stream _stream;
     public PerformanceVsStandard()
     {
@@ -27,8 +28,8 @@ public class PerformanceVsStandard
         _stream.Dispose();
     }
     
-    //[Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
-    [Params("175MB.txt")]
+    [Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
+    //[Params("175MB.txt")]
     public string TestFileName { get; set; }
     
     [Benchmark(Baseline = true)]
@@ -41,7 +42,7 @@ public class PerformanceVsStandard
         }
     }
 
-    [Benchmark]
+    // [Benchmark]
     public void StateMachine()
     {
         var stateMachine = StateMachineFactory.CreateStateMachine(_pattern);
@@ -51,14 +52,24 @@ public class PerformanceVsStandard
         }
     }
     
-    [Benchmark]
+    // [Benchmark]
     public void NFAStateMachine()
     {
-        var stateMachine = NFAStateMachineFactory.CreateStateMachine(_pattern);
+        var stateMachine = NfaStateMachineFactory.CreateStateMachine(_pattern);
         var match = stateMachine.Match(_stream);
         if (match is null)
         {
             throw new Exception("The regex didn't match");
+        }
+    }
+    
+    [Benchmark]
+    public void RegexExtension()
+    {
+        var content = new StreamReader(_stream);
+        if (!_compiled.IsMatch(content))
+        {
+            throw new Exception($"The regex didn't match.");
         }
     }
 }

@@ -18,7 +18,7 @@ public class UnitTest1
     public void TestShortTestString()
     {
         var stream = StringToStream(ShortTestString);
-        var stateMachine = NFAStateMachineFactory.CreateStateMachine(ShortPattern);
+        var stateMachine = NfaStateMachineFactory.CreateStateMachine(ShortPattern);
         Assert.AreEqual(5, stateMachine.GetFirstMatchPosition(stream));
     }
     
@@ -33,7 +33,7 @@ public class UnitTest1
     public void TestOptionalTestString()
     {
         var stream = StringToStream(ShortTestString);
-        var stateMachine = NFAStateMachineFactory.CreateStateMachine(OptionalPattern);
+        var stateMachine = NfaStateMachineFactory.CreateStateMachine(OptionalPattern);
         Assert.AreEqual(5, stateMachine.GetFirstMatchPosition(stream));
     }
 

@@ -1,20 +1,19 @@
-﻿using System.Collections;
-using System.Text;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace StreamRegex.Lib;
+namespace StreamRegex.Lib.DFA;
 
-public class StreamRegex
+public class DfaStreamRegex : IStreamRegex
 {
-    private List<IState> _states;
+    private List<IDfaState> _states;
     private int _bufferSize = 4096;
     private readonly ILogger _logger;
 
     // TODO: Add method to validate state machine can finish
-    internal StreamRegex(List<IState> states, ILoggerFactory? loggerFactory = null)
+    internal DfaStreamRegex(List<IDfaState> states, ILoggerFactory? loggerFactory = null)
     {
-        _logger = loggerFactory?.CreateLogger<StreamRegex>() ?? NullLogger<StreamRegex>.Instance;
+        _logger = loggerFactory?.CreateLogger<DfaStreamRegex>() ?? NullLogger<DfaStreamRegex>.Instance;
         _states = states;
     }
 

@@ -1,18 +1,15 @@
 ﻿namespace StreamRegex.Lib.NFA;
 
-public class InitialNfaState : BaseNFAState
+/// <summary>
+/// The initial state used for base case testing. Passes Transition and Accepts to its Success param.
+/// </summary>
+public class InitialNfaState : BaseNfaState
 {
     public InitialNfaState()
-    {      
-    }
-    public override IEnumerable<INFAState> Transition(char character)
     {
-        return Success.Transition(character);
-    }
-    public override bool Accepts(char character)
-    {
-        return Success.Accepts(character);
+        IsInitial = true;
     }
 
-    public override bool IsFinal { get; } = false;
+    public override INfaState[] Transition(char character) => Success.Transition(character);
+    public override bool Accepts(char character) => Success.Accepts(character);
 }

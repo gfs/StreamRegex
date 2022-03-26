@@ -1,37 +1,44 @@
 ﻿namespace StreamRegex.Lib.NFA;
 
-public class OptionalNfaState : BaseNFAState
+/// <summary>
+/// NFA State representing the ? symbol.
+/// </summary>
+public class OptionalNfaState : BaseNfaState
 {
-    private INFAState _optionalState;
-    public OptionalNfaState(INFAState toMakeOptional)
+    private readonly INfaState _optionalState;
+    private INfaState[]? _returnOnBoth;
+
+    public OptionalNfaState(INfaState toMakeOptional)
     {
         _optionalState = toMakeOptional;
         Success = this;
         Failure = this;
     }
-    
-    public override IEnumerable<INFAState> Transition(char character)
+
+    public override INfaState[] Transition(char character)
     {
-        if (_optionalState.Accepts(character))
+        ReturnOnSuccess ??= new[] {Success};
+
+        bool optionalAccept = _optionalState.Accepts(character);
+        bool successAccept = Success.Accepts(character);
+        if (optionalAccept && successAccept)
         {
-            yield return Success;
+            _returnOnBoth ??= Success.Transition(character).Append(Success).ToArray();
+        }
+        if (optionalAccept)
+        {
+            return ReturnOnSuccess ??= new[] {Success};
+        }
+        if (successAccept)
+        {
+            return Success.Transition(character);
         }
 
-        if (Success.Accepts(character))
-        {
-            foreach (var transition in Success.Transition(character))
-            {
-                yield return transition;
-            }
-        }
-
-        yield return Failure;
+        return ReturnOnFailure ??= new[] {Failure};
     }
 
     public override bool Accepts(char character)
     {
         return _optionalState.Accepts(character);
     }
-
-    public override bool IsFinal { get; } = false;
 }

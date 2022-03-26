@@ -1,13 +1,20 @@
 ﻿namespace StreamRegex.Lib.NFA;
 
 /// <summary>
-/// Represents the . operator. Accepts anything except '\n'.
+/// The final state.
 /// </summary>
-public class AnyCharacterNfaState : BaseNfaState
+public class FinalNfaState : BaseNfaState
 {
+    public FinalNfaState()
+    {
+        Success = this;
+        Failure = this;
+        IsFinal = true;
+    }
     public override INfaState[] Transition(char character) => DefaultTransition(character);
+
     public override bool Accepts(char character)
     {
-        return !character.Equals('\n');
+        return true;
     }
 }

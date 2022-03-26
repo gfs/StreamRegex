@@ -1,13 +1,15 @@
-﻿namespace StreamRegex.Lib;
+﻿using StreamRegex.Lib.DFA;
 
-public class ExactCharacterState : BaseState
+namespace StreamRegex.Lib;
+
+public class ExactCharacterDfaState : BaseDfaState
 {
     private readonly char _character;
-    public ExactCharacterState(char character)
+    public ExactCharacterDfaState(char character)
     {
         _character = character;
     }
-    public override IState Transition(char character)
+    public override IDfaState Transition(char character)
     {
         return Accepts(character) ? Success : Failure;
     }

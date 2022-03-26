@@ -1,14 +1,16 @@
-﻿namespace StreamRegex.Lib;
+﻿using StreamRegex.Lib.DFA;
 
-public class ComponentGroupState : BaseState
+namespace StreamRegex.Lib;
+
+public class ComponentGroupDfaState : BaseDfaState
 {
     private readonly string _characters;
     
-    public ComponentGroupState(string characters)
+    public ComponentGroupDfaState(string characters)
     {
         _characters = characters;
     }
-    public override IState Transition(char character)
+    public override IDfaState Transition(char character)
     {
         return Accepts(character) ? Success : Failure;
     }
