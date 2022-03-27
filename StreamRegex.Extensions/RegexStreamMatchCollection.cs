@@ -40,12 +40,12 @@ public class RegexStreamMatchCollection : IEnumerable<RegexStreamMatch>
     {
         return GetEnumerator();
     }
-
+    
     /// <summary>
     /// Add the matches in the provided <paramref name="matchCollection"/> to this collection.
     /// </summary>
     /// <param name="matchCollection">The matches to add</param>
-    public void AddMatches(RegexStreamMatchCollection matchCollection)
+    public void AddMatches(IEnumerable<RegexStreamMatch> matchCollection)
     {
         foreach (var match in matchCollection)
         {

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace StreamRegex.Extensions;
 
@@ -32,6 +33,7 @@ public static class RegexStreamExtensions
                 return true;
             }
             numChars = toMatch.Read(buffer);
+            builder.Slice(numChars-maxMatchLength,maxMatchLength).CopyTo(builder[..maxMatchLength]);
             while (numChars > 0)
             {
                 buffer.CopyTo(builder[maxMatchLength..]);
@@ -39,7 +41,7 @@ public static class RegexStreamExtensions
                 {
                     return true;
                 }
-
+                builder.Slice(numChars-maxMatchLength,maxMatchLength).CopyTo(builder[..maxMatchLength]);
                 numChars = toMatch.Read(buffer);
             }
         }
@@ -68,37 +70,7 @@ public static class RegexStreamExtensions
     /// <returns>A <see cref="RegexStreamMatch"/> object representing the first match. If there is no match, the <see cref="RegexStreamMatch.Matches"/> will be false, the <see cref="RegexStreamMatch.MatchContent"/> will be null.</returns>
     public static RegexStreamMatch GetFirstMatch(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
     {
-        var bufferSize = maxMatchLength * 2;
-        bufferSize = bufferSize < _minimumBufferSize ? _minimumBufferSize : bufferSize;
-        Span<char> buffer = new(new char[bufferSize]);
-        Span<char> builder = new(new char[bufferSize + maxMatchLength]);
-        var numChars = toMatch.Read(buffer);
-        long offset = 0;
-        if (numChars > 0)
-        {
-            buffer.CopyTo(builder);
-            var match = engine.Match(builder[..numChars].ToString());
-            if (match.Success)
-            {
-                return new RegexStreamMatch(engine, true, match.Index, match.Value);
-            }
-            offset += numChars;
-            builder.Slice(numChars-maxMatchLength,maxMatchLength).CopyTo(builder[..maxMatchLength]);
-            numChars = toMatch.Read(buffer);
-            while (numChars > 0)
-            {
-                buffer.CopyTo(builder[maxMatchLength..]);
-                match = engine.Match(builder[..(numChars + maxMatchLength)].ToString());
-                if (match.Success)
-                {
-                    return new RegexStreamMatch(engine, true, match.Index + offset - maxMatchLength, match.Value);
-                }
-                offset += numChars;
-                numChars = toMatch.Read(buffer);
-            }
-        }
-
-        return new RegexStreamMatch(engine);
+        return EnumerateMatches(engine, toMatch, maxMatchLength).FirstOrDefault() ?? new RegexStreamMatch(engine);
     }
 
     /// <summary>
@@ -111,39 +83,51 @@ public static class RegexStreamExtensions
     public static RegexStreamMatchCollection GetMatchCollection(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
     {
         var collection = new RegexStreamMatchCollection();
+        collection.AddMatches(engine.EnumerateMatches(toMatch, maxMatchLength));
+
+        return collection;
+    }
+    
+    /// <summary>
+    /// Find all matches for a given <see cref="Regex"/>
+    /// </summary>
+    /// <param name="engine">The Regex to operate with</param>
+    /// <param name="toMatch">The StreamReader to match</param>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A true forward only enumeration of the matches.</returns>
+    public static IEnumerable<RegexStreamMatch> EnumerateMatches(this Regex engine, StreamReader toMatch, int maxMatchLength = 256)
+    {
+        var collection = new RegexStreamMatchCollection();
         var bufferSize = maxMatchLength * 2;
         bufferSize = bufferSize < _minimumBufferSize ? _minimumBufferSize : bufferSize;
         Span<char> buffer = new(new char[bufferSize]);
         Span<char> builder = new(new char[bufferSize + maxMatchLength]);
         var numChars = toMatch.Read(buffer);
         long offset = 0;
-        if (numChars <= 0) return collection;
+        if (numChars <= 0)  yield break;
         buffer.CopyTo(builder);
-        var match = engine.Match(builder[..numChars].ToString());
-        if (match.Success)
-        {
-            collection.AddMatch(new RegexStreamMatch(engine, true, match.Index, match.Value));
-        }
 
-        offset += numChars;
-        builder.Slice(numChars - maxMatchLength, maxMatchLength).CopyTo(builder[..maxMatchLength]);
-        numChars = toMatch.Read(buffer);
         while (numChars > 0)
         {
-            buffer.CopyTo(builder[maxMatchLength..]);
-            match = engine.Match(builder[..(numChars + maxMatchLength)].ToString());
+            var numToUse = numChars;
+            if (offset > 0)
+            {
+                buffer.CopyTo(builder[maxMatchLength..]);
+                numToUse += maxMatchLength;
+            }
+            var match = engine.Match(builder[..numToUse].ToString());
             if (match.Success)
             {
-                collection.AddMatch(new RegexStreamMatch(engine, true, match.Index + offset - maxMatchLength, match.Value));
+                yield return new RegexStreamMatch(engine, true, match.Index, match.Value);
             }
 
+            int sliceStart = offset == 0 ? numChars - maxMatchLength : numChars;
             offset += numChars;
+            builder.Slice(sliceStart, maxMatchLength).CopyTo(builder[..maxMatchLength]);
             numChars = toMatch.Read(buffer);
         }
-
-        return collection;
     }
-
+    
     /// <summary>
     /// Find all matches for the engines in the given <see cref="RegexCache"/>
     /// </summary>
@@ -154,27 +138,51 @@ public static class RegexStreamExtensions
     public static RegexStreamMatchCollection GetMatchCollection(this RegexCache engines, StreamReader toMatch, int maxMatchLength = 256)
     {
         var collection = new RegexStreamMatchCollection();
+        collection.AddMatches(EnumerateMatches(engines, toMatch, maxMatchLength));
+
+        return collection;
+    }
+
+    /// <summary>
+    /// Find all matches for a given <see cref="RegexCache"/>
+    /// </summary>
+    /// <param name="engines">The Regexes to operate with</param>
+    /// <param name="toMatch">The StreamReader to match</param>
+    /// <param name="maxMatchLength">Matches longer than this value may not be matched. This parameter changes the size of the sliding buffer used. The larger this parameter is the more double checks will be done.</param>
+    /// <returns>A true forward only enumeration of the matches.</returns>
+    public static IEnumerable<RegexStreamMatch> EnumerateMatches(this RegexCache engines, StreamReader toMatch, int maxMatchLength = 256)
+    {
+        var collection = new RegexStreamMatchCollection();
         var bufferSize = maxMatchLength * 2;
         bufferSize = bufferSize < _minimumBufferSize ? _minimumBufferSize : bufferSize;
         Span<char> buffer = new(new char[bufferSize]);
         Span<char> builder = new(new char[bufferSize + maxMatchLength]);
         var numChars = toMatch.Read(buffer);
         long offset = 0;
-        if (numChars <= 0) return collection;
-        
+        if (numChars <= 0)  yield break;
         buffer.CopyTo(builder);
-        collection.AddMatches(engines.GetMatchCollection(builder[..numChars].ToString()));
-        offset += numChars;
-        builder.Slice(numChars-maxMatchLength,maxMatchLength).CopyTo(builder[..maxMatchLength]);
-        numChars = toMatch.Read(buffer);
+
         while (numChars > 0)
         {
-            buffer.CopyTo(builder[maxMatchLength..]);
-            collection.AddMatches(engines.GetMatchCollection(builder[..(numChars + maxMatchLength)].ToString()).WithOffset(offset - maxMatchLength));
+            var numToUse = numChars;
+            if (offset > 0)
+            {
+                buffer.CopyTo(builder[maxMatchLength..]);
+                numToUse += maxMatchLength;
+            }
+            foreach (var engine in engines)
+            {
+                var match = engines.Match(builder[..numToUse].ToString());
+                if (match.Success)
+                {
+                    yield return new RegexStreamMatch(engine, true, match.Index, match.Value);
+                }
+            }
+
+            int sliceStart = offset == 0 ? numChars - maxMatchLength : numChars;
             offset += numChars;
+            builder.Slice(sliceStart, maxMatchLength).CopyTo(builder[..maxMatchLength]);
             numChars = toMatch.Read(buffer);
         }
-
-        return collection;
     }
 }
