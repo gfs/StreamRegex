@@ -8,6 +8,7 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Tests;
 
+[Ignore]
 [TestClass]
 public class UnitTest1
 {
