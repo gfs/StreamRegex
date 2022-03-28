@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Authors>Gabe Stocco</Authors>
-        <Description>StreamRegex exposes a RegexStreamReader for checking regexes against Streams.</Description>
+        <Description>StreamRegex exposes a StreamRegexReader for checking regexes against Streams.</Description>
         <Copyright>Gabe Stocco 2022</Copyright>
         <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>

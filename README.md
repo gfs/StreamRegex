@@ -19,10 +19,10 @@ Regex myRegex = new Regex(expression);
 StreamReader reader = new StreamReader(stream);
 
 // Get matches
-RegexStreamMatchCollection matchCollection = myRegex.GetMatchCollection(reader);
+StreamRegexMatchCollection matchCollection = myRegex.GetMatchCollection(reader);
 if (matchCollection.Any())
 {
-    foreach(RegexStreamMatch match in matchCollection)
+    foreach(StreamRegexMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -43,7 +43,7 @@ else
 }
 
 // Get only the first match
-RegexStreamMatch match = myRegex.GetFirstMatch(reader);
+StreamRegexMatch match = myRegex.GetFirstMatch(reader);
 if (match.Matches)
 {
     // A match was found
@@ -67,10 +67,10 @@ Stream stream;
 Regex myRegex = new Regex(expression);
 
 // Get matches
-RegexStreamMatchCollection matchCollection = myRegex.GetMatchCollection(stream);
+StreamRegexMatchCollection matchCollection = myRegex.GetMatchCollection(stream);
 if (matchCollection.Any())
 {
-    foreach(RegexStreamMatch match in matchCollection)
+    foreach(StreamRegexMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -84,4 +84,4 @@ else
 ## How it works
 A sliding buffer is used across the stream. The `maxMatchLength` parameter is the amount of overlap buffer to use to ensure no matches are missed across buffer boundaries.
 
-https://github.com/gfs/StreamRegex/blob/ed03c047f1d7c09701ca16c087cb713860a21083/StreamRegex.Extensions/RegexStreamExtensions.cs#L20-L47
+https://github.com/gfs/StreamRegex/blob/ed03c047f1d7c09701ca16c087cb713860a21083/StreamRegex.Extensions/StreamRegexExtensions.cs#L20-L47
