@@ -225,11 +225,6 @@ public static class SlidingBufferExtensions
                 match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
                 collection.AddMatch(match);
             }
-
-            if (offset == 0)
-            {
-                offset -= opts.OverlapSize;
-            }
             offset += numChars;
             // This is an indication there is no more to read.
             // It protects us from trying to take a negative sized slice below for small strings.
