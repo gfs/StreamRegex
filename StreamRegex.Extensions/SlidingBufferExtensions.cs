@@ -146,6 +146,7 @@ public static class SlidingBufferExtensions
 
         long offset = 0;
         var numChars = toMatch.Read(buffer[..opts.BufferSize]);
+
         while (numChars > 0)
         {
             // The number of characters to read out of the builder
@@ -154,6 +155,7 @@ public static class SlidingBufferExtensions
             var match = action.Invoke(buffer[..numValidCharacters].ToString());
             if (match.Success)
             {
+                match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
                 return match;
             }
 
@@ -173,7 +175,7 @@ public static class SlidingBufferExtensions
 
         return new SlidingBufferMatch();
     }
-    
+
     /// <summary>
     /// Check if a Stream matches a Function
     /// </summary>
@@ -198,6 +200,7 @@ public static class SlidingBufferExtensions
         SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();
 
         var opts = options ?? new();
+
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
         // This is our string building buffer.
         Span<char> buffer = new(new char[bufferSize + opts.OverlapSize]);
@@ -213,7 +216,7 @@ public static class SlidingBufferExtensions
             foreach (SlidingBufferMatch match in matches)
             {
                 // Adjust the match position
-                match.Index += offset;
+                match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
                 collection.AddMatch(match);
             }
 
