@@ -51,6 +51,12 @@ public static class SlidingBufferExtensions
     /// <returns></returns>
     public static long IndexOf(this StreamReader toMatch, string target, StringComparison comparison = StringComparison.CurrentCulture, SlidingBufferOptions? options = null)
     {
+        var opts = options ?? new SlidingBufferOptions();
+        // Ensure that we can find the target string
+        if (opts.OverlapSize < target.Length)
+        {
+            opts.OverlapSize = target.Length;
+        }
         var match = toMatch.GetFirstMatch(contentChunk =>
         {
             var idx = contentChunk.IndexOf(target, comparison);
