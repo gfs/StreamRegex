@@ -35,5 +35,5 @@ jobs:
       with:
         nuget-api-key: ${{secrets.NUGET_API_KEY}}
     - name: Nuget Publish
-      run: nuget push NuPkgs/*.*nupkg
+      run: nuget push NuPkgs/*.*nupkg -Source https://api.nuget.org/v3/index.json
     
