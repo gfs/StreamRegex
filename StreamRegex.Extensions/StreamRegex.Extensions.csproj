@@ -8,6 +8,10 @@
         <Authors>Gabe Stocco</Authors>
         <Description>A fast .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.</Description>
         <Copyright>Gabe Stocco 2022</Copyright>
+        <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
+        <PackageTags>Regex, Stream, StreamReader, Parsing, Span</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
