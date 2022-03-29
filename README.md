@@ -1,14 +1,14 @@
 # StreamRegex
-A .NET Library with Extension Methods for performing Regex operations on Streams and StreamReaders.
+A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including methods for Regex.
 
 ## Motivation
 
 When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
 
-## To use
-
+## To use Regex
+Here is some simple sample code to get started
 ### StreamReader
-```csharp
+```c#
 // Include this for the extension methods
 using StreamRegex.Extensions;
 
@@ -56,7 +56,8 @@ else
 ```
 
 ### Stream
-```csharp
+If you call the methods with a Stream a StreamReader will be created to read it.
+```c#
 // Include this for the extension methods
 using StreamRegex.Extensions;
 
@@ -81,6 +82,85 @@ else
 }
 ```
 
+## To use Custom Method
+You can provide your own custom methods for both boolean matches and match metadata.
+### For Boolean Matches
+```c#
+// Include this for the extension methods
+using StreamRegex.Extensions;
+
+// Create your stream reader
+StreamReader reader = new StreamReader(stream);
+
+bool YourMethod(string chunk)
+{
+    // Your logic here
+}
+
+if(reader.IsMatch(contentChunk => YourMethod(contentChunk))
+{
+    // Your method matched some chunk of the Stream
+}
+else
+{
+    // Your method did not match any chunk of the Stream
+}
+```
+### For Value Data
+```c#
+// Include this for the extension methods
+using StreamRegex.Extensions;
+
+// Create your stream reader
+StreamReader reader = new StreamReader(stream);
+
+string target = "Something";
+
+// Return the index of the target string relative to the chunk. 
+// It will be adjusted to the correct relative position for the Stream automatically.
+SlidingBufferMatch YourMethod(string chunk)
+{
+    var idx = contentChunk.IndexOf(target, comparison);
+    if (idx != -1)
+    {
+        return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + target.Length)]);
+    }
+
+    return new SlidingBufferMatch();
+}
+
+var match = reader.GetFirstMatch(contentChunk => YourMethod(contentChunk);
+if(match.Success)
+{
+    // Your method matched some chunk of the Stream
+}
+else
+{
+    // Your method did not match any chunk of the Stream
+}
+```
+
+### For a collection
+```c#
+// Include this for the extension methods
+using StreamRegex.Extensions;
+
+// Create your stream reader
+StreamReader reader = new StreamReader(stream);
+// Your arbitrary engine that can generate multiple matches
+YourEngine engine = new MatchingEngine();
+public IEnumerable<SlidingBufferMatch> YourMethod(string arg)
+{
+        foreach (Match match in engine.MakeMatches(arg))
+        {
+            yield return new StreamRegexMatch(engine, true, match.Index, match.Value);
+        }
+    }
+}
+
+var collection = reader.GetMatchCollection(contentChunk => YourMethod(contentChunk));
+```
+
 ## How it works
 A sliding buffer is used across the stream. The `OverlapSize` parameter is the amount of overlap buffer to use to ensure no matches are missed across buffer boundaries.
 
@@ -100,3 +180,12 @@ Note that using a Regex is significantly faster than string.IndexOf. If do you d
 |  RegexExtension |    175MB.txt |   214.4 ms |  4.30 ms |  7.86 ms |  0.05 | 23000.0000 |          - |         - |    370 MB |
 |    SimpleString |    175MB.txt | 4,361.8 ms | 18.09 ms | 14.12 ms |  1.00 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
 | StringExtension |    175MB.txt | 4,379.5 ms | 16.09 ms | 12.56 ms |  1.00 | 22000.0000 |          - |         - |    366 MB |
+
+### Async vs Sync
+
+The library provides both Synchronous and Asynchronous APIs.  Because Span is not supported in async contexts async is significantly slower.
+
+|              Method | TestFileName |     Mean |   Error |  StdDev | Ratio | RatioSD |      Gen 0 |     Gen 1 | Allocated |
+|-------------------- |------------- |---------:|--------:|--------:|------:|--------:|-----------:|----------:|----------:|
+|      RegexExtension |    175MB.txt | 193.3 ms | 2.93 ms | 2.74 ms |  1.00 |    0.00 | 23000.0000 |         - |    370 MB |
+| RegexExtensionAsync |    175MB.txt | 406.8 ms | 7.71 ms | 8.25 ms |  2.10 |    0.06 | 43000.0000 | 1000.0000 |    384 MB |
