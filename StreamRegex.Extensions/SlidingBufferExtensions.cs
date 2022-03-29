@@ -10,9 +10,9 @@ public static class SlidingBufferExtensions
     /// <param name="comparison"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static bool Contains(this Stream toMatch, string target, StringComparison comparison, SlidingBufferOptions? options = null)
+    public static bool Contains(this Stream toMatch, string target, StringComparison? comparison = null, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(toMatch).IsMatch(contentChunk => contentChunk.Contains(target, comparison), options);
+        return new StreamReader(toMatch).Contains(target, comparison, options);
     }
 
     /// <summary>
@@ -23,9 +23,11 @@ public static class SlidingBufferExtensions
     /// <param name="comparison"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static bool Contains(this StreamReader toMatch, string target, StringComparison comparison, SlidingBufferOptions? options = null)
+    public static bool Contains(this StreamReader toMatch, string target, StringComparison? comparison = null, SlidingBufferOptions? options = null)
     {
-        return toMatch.IsMatch(contentChunk => contentChunk.Contains(target, comparison), options);
+        return comparison is { } notNullComparison ?
+            toMatch.IsMatch(contentChunk => contentChunk.Contains(target, notNullComparison), options) :
+            toMatch.IsMatch(contentChunk => contentChunk.Contains(target), options);
     }
 
     /// <summary>

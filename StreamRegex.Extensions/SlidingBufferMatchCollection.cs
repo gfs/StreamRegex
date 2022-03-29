@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// A collection holding unique <see cref="SlidingBufferMatch"/>.
+/// A collection holding unique <see cref="SlidingBufferMatch"/> for a single resource. The matches are Records which are deduplicated automatically.
 /// </summary>
 public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingBufferMatch
 {
@@ -46,15 +46,15 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
     }
 
     /// <summary>
-    /// Update the index position of the matches in this collection by a specific offset and return the collection.
+    /// Update the index position of the matches in this collection by a specific offset and return the modified collection. Does not make a copy.
     /// </summary>
     /// <param name="offset">The offset to apply</param>
     /// <returns>This collection with the matches modified</returns>
     public SlidingBufferMatchCollection<T> WithOffset(long offset)
     {
-        foreach (var SlidingBufferMatch in _collection)
+        foreach (var slidingBufferMatch in _collection)
         {
-            SlidingBufferMatch.Index += offset;
+            slidingBufferMatch.Index += offset;
         }
 
         return this;

@@ -6,12 +6,12 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
-public class PerformanceVsStandard
+public class BufferSizeBenchmarks
 {
     private readonly Regex _compiled;
     private const string Pattern = "racecar";
     private Stream _stream = new MemoryStream();
-    public PerformanceVsStandard()
+    public BufferSizeBenchmarks()
     {
         _compiled = new Regex(Pattern, RegexOptions.Compiled);
     }
@@ -32,7 +32,8 @@ public class PerformanceVsStandard
     [Params("175MB.txt")]
     public string TestFileName { get; set; }
     
-    [Benchmark(Baseline = true)]
+    [BenchmarkCategory("Regex")]
+    [Benchmark]
     public void CompiledRegex()
     {
         var content = new StreamReader(_stream).ReadToEnd();
@@ -41,7 +42,43 @@ public class PerformanceVsStandard
             throw new Exception($"The regex didn't match.");
         }
     }
+    
+    [BenchmarkCategory("Regex")]
+    [Benchmark]
+    public void RegexExtension()
+    {
+        var content = new StreamReader(_stream);
+        if (!_compiled.IsMatch(content))
+        {
+            throw new Exception($"The regex didn't match.");
+        }
+    }
+    
+    [BenchmarkCategory("Contains")]
+    [Benchmark(Baseline = true)]
 
+    public void SimpleString()
+    {
+        var match = new StreamReader(_stream).ReadToEnd().IndexOf("racecar");
+        if (match == -1)
+        {
+            throw new Exception($"The regex didn't match.");
+        }
+    }
+    
+    [BenchmarkCategory("Contains")]
+    [Benchmark]
+    public void StringExtension()
+    {
+        var content = new StreamReader(_stream);
+        var match = content.IndexOf("racecar");
+        if (match == -1)
+        {
+            throw new Exception($"The regex didn't match.");
+        }
+    }
+    
+    
     // [Benchmark]
     public void StateMachine()
     {
@@ -60,16 +97,6 @@ public class PerformanceVsStandard
         if (match is null)
         {
             throw new Exception("The regex didn't match");
-        }
-    }
-    
-    [Benchmark]
-    public void RegexExtension()
-    {
-        var content = new StreamReader(_stream);
-        if (!_compiled.IsMatch(content))
-        {
-            throw new Exception($"The regex didn't match.");
         }
     }
 }

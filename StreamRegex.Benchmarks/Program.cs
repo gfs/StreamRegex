@@ -4,7 +4,7 @@ using StreamRegex.Lib;
 using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 
-// var summary = BenchmarkRunner.Run<PerformanceVsStandard>();
+var summary = BenchmarkRunner.Run<PerformanceVsStandard>();
 // NFATest();
 void ExtensionsTest()
 {
