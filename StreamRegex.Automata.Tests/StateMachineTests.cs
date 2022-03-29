@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Text.Unicode;
@@ -8,6 +9,7 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Tests;
 
+[ExcludeFromCodeCoverage]
 [Ignore]
 [TestClass]
 public class UnitTest1

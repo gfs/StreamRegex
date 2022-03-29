@@ -36,6 +36,19 @@ public static class StreamRegexExtensionsAsync
     }
     
     /// <summary>
+    /// Find if a Stream matches a regular expression.
+    /// </summary>
+    /// <param name="engine">The <see cref="Regex"/> to operate with</param>
+    /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
+    /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>True if there is at least one match.</returns>
+    public static async Task<bool> IsMatchAsync(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
+    {
+        return (await engine.GetFirstMatchAsync(toMatch, options)).Success;
+    }
+    
+    /// <summary>
     /// Find if a StreamReader matches a regular expression.
     /// </summary>
     /// <param name="engine">The <see cref="Regex"/> to operate with</param>
@@ -44,19 +57,6 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
     /// <returns>True if there is at least one match.</returns>
     public static async Task<bool> IsMatchAsync(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
-    {
-        return (await engine.GetFirstMatchAsync(toMatch, options)).Success;
-    }
-
-    /// <summary>
-    /// Find if a Stream matches a regular expression.
-    /// </summary>
-    /// <param name="engine">The <see cref="Regex"/> to operate with</param>
-    /// <param name="toMatch">The <see cref="Stream"/> to match</param>
-    /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
-    /// <returns>True if there is at least one match.</returns>
-    public static async Task<bool> IsMatch(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
         return (await engine.GetFirstMatchAsync(toMatch, options)).Success;
     }
@@ -110,6 +110,18 @@ public static class StreamRegexExtensionsAsync
     {
         RegexMethods methods = new RegexMethods(engines);
         return (StreamRegexMatch)await toMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchFunction);
+    }
+    
+    /// <summary>
+    /// Find all matches for a given <see cref="Regex"/>
+    /// </summary>
+    /// <param name="engine">The Regex to operate with</param>
+    /// <param name="toMatch">The StreamReader to match</param>
+    /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
+    /// <returns>A <see cref="StreamRegexMatchCollection"/> object representing all matches. This object will be empty if there are no matches.</returns>
+    public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
+    {
+        return await new[]{engine}.GetMatchCollectionAsync(new StreamReader(toMatch), options);
     }
     
     /// <summary>

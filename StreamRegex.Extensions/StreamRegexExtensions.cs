@@ -19,7 +19,8 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return engines.GetFirstMatch(toMatch, options).Success;
+        var regexActions = new RegexMethods(engines);
+        return toMatch.IsMatch(regexActions.RegexIsMatchFunction);
     }
 
     /// <summary>
@@ -32,7 +33,8 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this IEnumerable<Regex> engines, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return engines.GetFirstMatch(toMatch, options).Success;
+        var regexActions = new RegexMethods(engines);
+        return toMatch.IsMatch(regexActions.RegexIsMatchFunction);
     }
     
     /// <summary>
@@ -45,7 +47,8 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return engine.GetFirstMatch(toMatch, options).Success;
+
+        return new[] {engine}.IsMatch(toMatch, options);
     }
 
     /// <summary>
@@ -58,7 +61,7 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return engine.GetFirstMatch(toMatch, options).Success;
+        return new[] {engine}.IsMatch(toMatch, options);
     }
     
     /// <summary>
@@ -110,6 +113,18 @@ public static class StreamRegexExtensions
     {
         RegexMethods methods = new RegexMethods(engines);
         return (StreamRegexMatch)toMatch.GetFirstMatch(methods.RegexGetFirstMatchFunction);
+    }
+    
+    /// <summary>
+    /// Find all matches for a given <see cref="Regex"/>
+    /// </summary>
+    /// <param name="engine">The Regex to operate with</param>
+    /// <param name="toMatch">The StreamReader to match</param>
+    /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
+    /// <returns>A <see cref="StreamRegexMatchCollection"/> object representing all matches. This object will be empty if there are no matches.</returns>
+    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
+    {
+        return new[]{engine}.GetMatchCollection(new StreamReader(toMatch), options);
     }
     
     /// <summary>
