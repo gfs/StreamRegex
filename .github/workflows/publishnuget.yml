@@ -34,6 +34,6 @@ jobs:
       uses: brandedoutcast/publish-nuget@v2.5.5
       with:
         PROJECT_FILE_PATH: StreamRegex.Extensions/StreamRegex.Extensions.csproj
-        NUGET_KEY: NUGET_API_KEY
+        NUGET_KEY: SECRET_NUGET_API_KEY
         INCLUDE_SYMBOLS: true
         VERSION_STATIC: NGBV_NuGetPackageVersion
