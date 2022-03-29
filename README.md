@@ -33,6 +33,10 @@ else
 {
     // No match
 }
+```
+
+Alternately check if there is only one match. Note that the position of the Stream or StreamReader is not reset by these methods. Ensure the position of your stream is where you want to start parsing.
+```c#
 
 // Check if there is any match
 if (myRegex.IsMatch(reader))
@@ -153,10 +157,9 @@ StreamReader reader = new StreamReader(stream);
 YourEngine engine = new MatchingEngine();
 public IEnumerable<SlidingBufferMatch> YourMethod(string arg)
 {
-        foreach (Match match in engine.MakeMatches(arg))
-        {
-            yield return new StreamRegexMatch(engine, true, match.Index, match.Value);
-        }
+    foreach (Match match in engine.MakeMatches(arg))
+    {
+        yield return new SlidingBufferMatch(true, match.Index, match.Value);
     }
 }
 
