@@ -169,10 +169,10 @@ https://github.com/gfs/StreamRegex/blob/fce9cdbbe5bdcf3629ece9547a4c5230b941d072
 These benchmarks were run with a pre-release version of the library. 
 
 ### Large File Test
-This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
-The query used for both regex and string matching was `racecar` - no regex operators.
-Compared to a workflow of reading the entire string first into a stream, this library allocates significantly less memory and for Regular Expressions is faster.
-Note that using a Regex is significantly faster than string.IndexOf. If do you do not absolutely need to specify StringComparison you should consider using Regex over IndexOf.
+* This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
+* The query used for both regex and string matching was `racecar` - no regex operators.
+* Compared to a workflow of reading the entire string first into a stream, this library allocates significantly less memory and for Regular Expressions is faster.
+* Note that using a Regex is significantly faster than string.IndexOf. If do you do not absolutely need to specify StringComparison you should consider using Regex over IndexOf.
 
 |          Method | TestFileName |       Mean |    Error |   StdDev | Ratio |      Gen 0 |      Gen 1 |     Gen 2 | Allocated |
 |---------------- |------------- |-----------:|---------:|---------:|------:|-----------:|-----------:|----------:|----------:|
