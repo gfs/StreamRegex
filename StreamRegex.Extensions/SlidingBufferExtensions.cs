@@ -3,25 +3,25 @@
 public static class SlidingBufferExtensions
 {
     /// <summary>
-    /// Check if a Stream matches a Function
+    /// Check if a <see cref="Stream"/> matches the provided <paramref name="action"/>
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static bool IsMatch(this Stream tomatch, Func<string, bool> action, SlidingBufferOptions? options = null)
+    /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>True if the <see cref="streamToMatch"/> matches the <see cref="action"/></returns>
+    public static bool IsMatch(this Stream streamToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(tomatch).IsMatch(action, options);
+        return new StreamReader(streamToMatch).IsMatch(action, options);
     }
     
     /// <summary>
-    /// Check if a StreamReader matches a Function
+    /// Check if a <see cref="StreamReader"/> matches the provided <paramref name="action"/>
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static bool IsMatch(this StreamReader toMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
+    /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>True if the <see cref="streamReaderToMatch"/> matches the <see cref="action"/></returns>
+    public static bool IsMatch(this StreamReader streamReaderToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {        
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
@@ -29,7 +29,7 @@ public static class SlidingBufferExtensions
         Span<char> buffer = new(new char[bufferSize + opts.OverlapSize]);
 
         long offset = 0;
-        var numChars = toMatch.Read(buffer[..opts.BufferSize]);
+        var numChars = streamReaderToMatch.Read(buffer[..opts.BufferSize]);
         while (numChars > 0)
         {
             // The number of characters to read out of the builder
@@ -51,32 +51,32 @@ public static class SlidingBufferExtensions
             // Copy the overlap slice to the start of the buffer.
             buffer[(numValidCharacters - opts.OverlapSize)..numValidCharacters].CopyTo(buffer[..opts.OverlapSize]);
             // Read the new content after the overlap
-            numChars = toMatch.Read(buffer[opts.OverlapSize..]);
+            numChars = streamReaderToMatch.Read(buffer[opts.OverlapSize..]);
         }
 
         return false;
     }
     
     /// <summary>
-    /// Check if a Stream matches a Function
+    /// Get the first match for a <see cref="Stream"/> from an Function.
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static SlidingBufferMatch GetFirstMatch(this Stream tomatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
+    /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
+    public static SlidingBufferMatch GetFirstMatch(this Stream streamToMatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(tomatch).GetFirstMatch(action, options);
+        return new StreamReader(streamToMatch).GetFirstMatch(action, options);
     }
     
     /// <summary>
-    /// Check if a StreamReader matches a Function
+    /// Get the first match for a <see cref="StreamReader"/> from an Function.
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static SlidingBufferMatch GetFirstMatch(this StreamReader toMatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
+    /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
+    public static SlidingBufferMatch GetFirstMatch(this StreamReader streamReaderToMatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
     {        
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
@@ -84,7 +84,7 @@ public static class SlidingBufferExtensions
         Span<char> buffer = new(new char[bufferSize + opts.OverlapSize]);
 
         long offset = 0;
-        var numChars = toMatch.Read(buffer[..opts.BufferSize]);
+        var numChars = streamReaderToMatch.Read(buffer[..opts.BufferSize]);
 
         while (numChars > 0)
         {
@@ -109,32 +109,32 @@ public static class SlidingBufferExtensions
             // Copy the overlap slice to the start of the buffer.
             buffer[(numValidCharacters - opts.OverlapSize)..numValidCharacters].CopyTo(buffer[..opts.OverlapSize]);
             // Read the new content after the overlap
-            numChars = toMatch.Read(buffer[opts.OverlapSize..]);
+            numChars = streamReaderToMatch.Read(buffer[opts.OverlapSize..]);
         }
 
         return new SlidingBufferMatch();
     }
 
     /// <summary>
-    /// Check if a Stream matches a Function
+    /// Get the all matches for a <see cref="Stream"/> from an Function.
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Stream toMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
+    /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamToMatch"/>.</returns>
+    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Stream streamToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(toMatch).GetMatchCollection(action, options);
+        return new StreamReader(streamToMatch).GetMatchCollection(action, options);
     }
     
     /// <summary>
-    /// Check if a StreamReader matches a Function
+    /// Get the all matches for a <see cref="StreamReader"/> from an Function.
     /// </summary>
-    /// <param name="toMatch"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this StreamReader toMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
+    /// <param name="streamReaderToMatch"><see cref="StreamReader"/> to check for matches</param>
+    /// <param name="action">The Function to run</param>
+    /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamReaderToMatch"/>.</returns>
+    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this StreamReader streamReaderToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {        
         SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();
 
@@ -145,7 +145,7 @@ public static class SlidingBufferExtensions
         Span<char> buffer = new(new char[bufferSize + opts.OverlapSize]);
 
         long offset = 0;
-        var numChars = toMatch.Read(buffer[..opts.BufferSize]);
+        var numChars = streamReaderToMatch.Read(buffer[..opts.BufferSize]);
         while (numChars > 0)
         {
             // The number of characters to read out of the builder
@@ -169,7 +169,7 @@ public static class SlidingBufferExtensions
             // Copy the overlap slice to the start of the buffer.
             buffer[(numValidCharacters - opts.OverlapSize)..numValidCharacters].CopyTo(buffer[..opts.OverlapSize]);
             // Read the new content after the overlap
-            numChars = toMatch.Read(buffer[opts.OverlapSize..]);
+            numChars = streamReaderToMatch.Read(buffer[opts.OverlapSize..]);
         }
 
         return collection;

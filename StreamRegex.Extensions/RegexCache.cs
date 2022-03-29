@@ -20,13 +20,6 @@ public class RegexCache : IEnumerable<Regex>
             _collection.Add(regex);
         }
     }
-
-    /// <summary>
-    /// Construct an empty cache
-    /// </summary>
-    public RegexCache()
-    {
-    }
     
     private readonly ConcurrentBag<Regex> _collection = new();
     
