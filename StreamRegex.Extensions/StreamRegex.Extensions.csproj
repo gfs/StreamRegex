@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <Title>StreamRegex.Extensions</Title>
         <Authors>Gabe Stocco</Authors>
-        <Description>Extension Methods for the Regex object for use on Streams and StreamReaders.</Description>
+        <Description>A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.</Description>
         <Copyright>Gabe Stocco 2022</Copyright>
     </PropertyGroup>
 

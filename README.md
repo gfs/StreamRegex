@@ -1,6 +1,5 @@
 # StreamRegex
-A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including methods for Regex.
-
+A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
 ## Motivation
 
 When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
