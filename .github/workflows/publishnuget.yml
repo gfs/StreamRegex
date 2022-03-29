@@ -26,14 +26,14 @@ jobs:
       
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish NuGet
-      uses: brandedoutcast/publish-nuget@v2.5.5
+      run: dotnet test --verbosity normal
+    - name: Build
+      run: dotnet pack --no-restore StreamRegex.Extensions -o NuPkgs
+    - name: Setup NuGet.exe for use with actions
+      uses: NuGet/setup-nuget@v1.0.5
       with:
-        PROJECT_FILE_PATH: StreamRegex.Extensions/StreamRegex.Extensions.csproj
-        NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
-        INCLUDE_SYMBOLS: true
-        VERSION_STATIC: NGBV_NuGetPackageVersion
+        nuget-api-key: ${{secrets.NUGET_API_KEY}}
+    - name: Nuget Publish
+      run: nuget push NuPkgs/*.*nupkg
+    
