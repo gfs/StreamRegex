@@ -1,8 +1,8 @@
-name: .NET
+name: Publish to Nuget
 
 on:
   push:
-    #branches: [ main ]
+    branches: [ main ]
 
 jobs:
   build:
