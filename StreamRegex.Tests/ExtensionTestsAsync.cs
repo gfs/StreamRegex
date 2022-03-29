@@ -31,7 +31,7 @@ public class AsyncExtensionTests
     public async Task TestBufferOverlapAsync()
     {
         var compiled = new Regex("45", RegexOptions.Compiled);
-        var res = compiled.GetFirstMatch(StringToStream(ShortTestString), new StreamRegexOptions()
+        var res = await compiled.GetFirstMatchAsync(StringToStream(ShortTestString), new StreamRegexOptions()
         {
             BufferSize = 4,
             OverlapSize = 2
