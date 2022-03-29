@@ -1,5 +1,8 @@
+[![Nuget](https://img.shields.io/nuget/v/StreamRegex.Extensions)](https://www.nuget.org/packages/StreamRegex.Extensions/)
 # StreamRegex
 A fast .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
+
+The Extensions are available on Nuget: [https://www.nuget.org/packages/StreamRegex.Extensions/](https://www.nuget.org/packages/StreamRegex.Extensions/)
 ## Motivation
 
 When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
