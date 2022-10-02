@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Title>StreamRegex.Extensions</Title>
         <Authors>Gabe Stocco</Authors>
-        <Description>A fast .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.</Description>
+        <Description>A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.</Description>
         <Copyright>Gabe Stocco 2022</Copyright>
         <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
         <PackageTags>Regex, Stream, StreamReader, Parsing, Span</PackageTags>
+        <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

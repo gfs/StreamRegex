@@ -1,4 +1,8 @@
-﻿namespace StreamRegex.Extensions;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+
+namespace StreamRegex.Extensions;
 
 public static class StringMethodExtensionsAsync
 {

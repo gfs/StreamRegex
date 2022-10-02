@@ -1,4 +1,7 @@
-﻿namespace StreamRegex.Extensions;
+﻿using System;
+using System.IO;
+
+namespace StreamRegex.Extensions;
 
 public static class StringMethodExtensions
 {
