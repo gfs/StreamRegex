@@ -168,7 +168,7 @@ var collection = reader.GetMatchCollection(contentChunk => YourMethod(contentChu
 ```
 
 ## How it works
-A sliding buffer is used across the stream. The `OverlapSize` parameter is the amount of overlap buffer to use to ensure no matches are missed across buffer boundaries.
+A sliding buffer is used across the stream. The `OverlapSize` parameter is the amount of overlap buffer to use to ensure no matches are missed across buffer boundaries. Always ensure that the Overlap is sufficient for the length of the matches you want to find.
 
 https://github.com/gfs/StreamRegex/blob/fce9cdbbe5bdcf3629ece9547a4c5230b941d072/StreamRegex.Extensions/SlidingBufferExtensions.cs#L206-L245
 ## Benchmarks
