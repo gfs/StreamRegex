@@ -1,26 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// A collection holding unique <see cref="SlidingBufferMatch"/> for a single resource. The matches are Records which are deduplicated automatically.
+/// A collection holding unique <see cref="SlidingBufferMatch"/>. The backing collection is threadsafe.
 /// </summary>
-public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingBufferMatch
+/// <typeparam name="T">The type must inherit from <see cref="SlidingBufferMatch"/></typeparam>
+public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T> where T : SlidingBufferMatch
 {
     private readonly ConcurrentQueue<T> _collection = new();
     private readonly ConcurrentDictionary<T, bool> _deduper = new();
+
+    /// <inheritdoc/>
+    public int Count => _collection.Count;
+
+    /// <inheritdoc/>
+    public bool IsReadOnly => false;
+
+    /// <inheritdoc/>
+    public bool IsSynchronized => true;
+
+    /// <summary>
+    /// Not supported.
+    /// </summary>
+    public object SyncRoot => throw new NotSupportedException();
+
     internal SlidingBufferMatchCollection(){}
-    
-    internal SlidingBufferMatchCollection(IEnumerable<T> matches)
-    {
-        foreach (var match in matches)
-        {
-            _collection.Enqueue(match);
-        }
-    }
 
     /// <summary>
     /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
@@ -50,7 +58,7 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
     /// Update the index position of the matches in this collection by a specific offset and return the modified collection. Does not make a copy.
     /// </summary>
     /// <param name="offset">The offset to apply</param>
-    /// <returns>This collection with the matches modified</returns>
+    /// <returns>This <see cref="SlidingBufferMatchCollection{T}"/> with the match indices modified.</returns>
     public SlidingBufferMatchCollection<T> WithOffset(long offset)
     {
         foreach (var slidingBufferMatch in _collection)
@@ -62,9 +70,9 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
     }
 
     /// <summary>
-    /// Gets an Enumerator over the <see cref="SlidingBufferMatch"/> in the collection.
+    /// Gets an <see cref="IEnumerable{SlidingBufferMatch}"/> over the <see cref="SlidingBufferMatch"/> in the collection.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>An <see cref="IEnumerable{SlidingBufferMatch}"/> over the <see cref="SlidingBufferMatch"/> in the collection.</returns>
     public IEnumerator<T> GetEnumerator()
     {
         return _collection.GetEnumerator();
@@ -74,4 +82,29 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
     {
         return GetEnumerator();
     }
+
+    /// <inheritdoc/>
+    public void Add(T item)
+    {
+        if (_deduper.TryAdd(item, true))
+        {
+            _collection.Enqueue(item);
+        }
+    }
+
+    /// <inheritdoc/>
+    public void Clear()
+    {
+        _collection.Clear();
+        _deduper.Clear();
+    }
+
+    /// <inheritdoc/>
+    public bool Contains(T item) => _deduper.ContainsKey(item);
+
+    /// <inheritdoc/>
+    public void CopyTo(T[] array, int arrayIndex) => _collection.CopyTo(array, arrayIndex);
+
+    /// <inheritdoc/>
+    public void CopyTo(Array array, int index) => _collection.CopyTo((T[])array, index);
 }
