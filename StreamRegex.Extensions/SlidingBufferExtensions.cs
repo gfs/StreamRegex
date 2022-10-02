@@ -1,4 +1,8 @@
-﻿namespace StreamRegex.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace StreamRegex.Extensions;
 
 public static class SlidingBufferExtensions
 {
