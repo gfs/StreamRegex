@@ -6,7 +6,6 @@
           "files": [
             "StreamRegex.Extensions.csproj"
           ],
-          "exclude": [ "**/bin/**", "**/obj/**" ],
           "src":"../StreamRegex.Extensions"
         }
       ],
