@@ -34,13 +34,12 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 6.0.x
-      - name: docfx-action
-      # You may pin to the exact commit or the version.
-      # uses: nikeee/docfx-action@b9c2cf92e3b4aa06878a1410833a8828b4bdcd26
-        uses: nikeee/docfx-action@v1.0.0
-        with:
-            args: docfx/docfx.json
-
+      - name: Install chocolatey
+        run: Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      - name: Install docfx
+        run: choco install docfx
+      - name: Run DocFx
+        run: docfx docfx/docfx.json
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
