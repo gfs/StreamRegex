@@ -4,6 +4,9 @@ using System.IO;
 
 namespace StreamRegex.Extensions;
 
+/// <summary>
+/// Synchronous methods to perform arbitrary string check operations on <see cref="Stream"/> and <see cref="StreamReader"/>.
+/// </summary>
 public static class SlidingBufferExtensions
 {
     /// <summary>
@@ -12,19 +15,19 @@ public static class SlidingBufferExtensions
     /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>True if the <see cref="streamToMatch"/> matches the <see cref="action"/></returns>
+    /// <returns>True if the <paramref name="streamToMatch"/> matches the <paramref name="action"/></returns>
     public static bool IsMatch(this Stream streamToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {
         return new StreamReader(streamToMatch).IsMatch(action, options);
     }
-    
+
     /// <summary>
     /// Check if a <see cref="StreamReader"/> matches the provided <paramref name="action"/>
     /// </summary>
     /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>True if the <see cref="streamReaderToMatch"/> matches the <see cref="action"/></returns>
+    /// <returns>True if the <paramref name="streamReaderToMatch"/> matches the <paramref name="action"/></returns>
     public static bool IsMatch(this StreamReader streamReaderToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {        
         var opts = options ?? new();
@@ -125,19 +128,19 @@ public static class SlidingBufferExtensions
     /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamToMatch"/>.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamToMatch"/>.</returns>
     public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Stream streamToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {
         return new StreamReader(streamToMatch).GetMatchCollection(action, options);
     }
-    
+
     /// <summary>
     /// Get the all matches for a <see cref="StreamReader"/> from an Function.
     /// </summary>
     /// <param name="streamReaderToMatch"><see cref="StreamReader"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamReaderToMatch"/>.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamReaderToMatch"/>.</returns>
     public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this StreamReader streamReaderToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {        
         SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();

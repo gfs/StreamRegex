@@ -61,6 +61,7 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
         return this;
     }
 
+    /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
         return _collection.GetEnumerator();

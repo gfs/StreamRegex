@@ -3,6 +3,9 @@ using System.IO;
 
 namespace StreamRegex.Extensions;
 
+/// <summary>
+/// Synchronous methods to emulate <see cref="String.Contains(string)"/> and <see cref="String.IndexOf(string)"/> operations on Streams.
+/// </summary>
 public static class StringMethodExtensions
 {
     
