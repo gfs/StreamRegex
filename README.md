@@ -195,3 +195,7 @@ Because Span is not supported in async contexts async is significantly slower.
 |-------------------- |------------- |---------:|--------:|--------:|------:|--------:|-----------:|----------:|----------:|
 |      RegexExtension |    175MB.txt | 193.3 ms | 2.93 ms | 2.74 ms |  1.00 |    0.00 | 23000.0000 |         - |    370 MB |
 | RegexExtensionAsync |    175MB.txt | 406.8 ms | 7.71 ms | 8.25 ms |  2.10 |    0.06 | 43000.0000 | 1000.0000 |    384 MB |
+
+## License
+
+MIT
