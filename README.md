@@ -1,6 +1,6 @@
 [![Nuget](https://img.shields.io/nuget/v/StreamRegex.Extensions)](https://www.nuget.org/packages/StreamRegex.Extensions/)
 # StreamRegex
-A fast .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
+A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
 
 The Extensions are available on Nuget: [https://www.nuget.org/packages/StreamRegex.Extensions/](https://www.nuget.org/packages/StreamRegex.Extensions/)
 ## Motivation
@@ -177,7 +177,6 @@ These benchmarks were run with a pre-release version of the library.
 * This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
 * The query used for both regex and string matching was `racecar` - no regex operators.
 * Compared to a workflow of reading the entire string first into a stream, this library allocates significantly less memory and for Regular Expressions is faster.
-* Note that using a Regex is significantly faster than string.IndexOf. If do you do not absolutely need to specify StringComparison you should consider using Regex over IndexOf.
 
 |          Method | TestFileName |       Mean |    Error |   StdDev | Ratio |      Gen 0 |      Gen 1 |     Gen 2 | Allocated |
 |---------------- |------------- |-----------:|---------:|---------:|------:|-----------:|-----------:|----------:|----------:|
