@@ -9,3 +9,4 @@ obj/
 **/.idea/indexlayout.xml
 **/.idea/projectSettingsUpdater.xml
 .vs/**
+docs/**
