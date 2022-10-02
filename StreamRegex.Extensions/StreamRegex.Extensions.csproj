@@ -12,6 +12,7 @@
         <PackageTags>Regex, Stream, StreamReader, Parsing, Span</PackageTags>
         <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
         <LangVersion>10</LangVersion>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

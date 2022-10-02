@@ -57,7 +57,7 @@ public static class StreamRegexExtensionsAsync
     /// <param name="engine">The <see cref="Regex"/> to operate with</param>
     /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     /// <returns>True if there is at least one match.</returns>
     public static async Task<bool> IsMatchAsync(this Regex engine, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
@@ -67,20 +67,20 @@ public static class StreamRegexExtensionsAsync
         };
         return await engines.IsMatchAsync(streamReaderToMatch, options);
     }
-    
+
     /// <summary>
     /// Find the first <see cref="StreamRegexMatch"/> for a <see cref="Regex"/> in a <see cref="Stream"/>.
     /// </summary>
     /// <param name="engine">The Regex to operate with</param>
     /// <param name="streamToMatch">The <see cref="Stream"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, and the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this Regex engine, Stream streamToMatch, StreamRegexOptions? options = null)
     {
         using var reader = new StreamReader(streamToMatch);
         return await engine.GetFirstMatchAsync(reader, options);
     }
-    
+
     /// <summary>
     /// Find the first <see cref="StreamRegexMatch"/> for any of the <see cref="IEnumerable{Regex}"/> in a <see cref="Stream"/>.
     /// <see cref="RegexCache"/> is a recommended to use with this extension method.
@@ -88,25 +88,25 @@ public static class StreamRegexExtensionsAsync
     /// <param name="engines">The <see cref="IEnumerable{Regex}"/> to operate with</param>
     /// <param name="streamToMatch">The <see cref="Stream"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, and the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this IEnumerable<Regex> engines, Stream streamToMatch, StreamRegexOptions? options = null)
     {
         using var reader = new StreamReader(streamToMatch);
         return await engines.GetFirstMatchAsync(reader, options);
     }
-    
+
     /// <summary>
     /// Find the first <see cref="StreamRegexMatch"/> for a <see cref="Regex"/> in a <see cref="StreamReader"/>.
     /// </summary>
     /// <param name="engine">The <see cref="Regex"/> to operate with</param>
     /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, and the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this Regex engine, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
         return await new[]{engine}.GetFirstMatchAsync(streamReaderToMatch, options);
     }
-    
+
     /// <summary>
     /// Find the first <see cref="StreamRegexMatch"/> for any of the <see cref="IEnumerable{Regex}"/> in a <see cref="StreamReader"/>.
     /// <see cref="RegexCache"/> is a recommended to use with this extension method.
@@ -115,7 +115,7 @@ public static class StreamRegexExtensionsAsync
     /// <param name="engines">The <see cref="IEnumerable{Regex}"/> to operate with</param>
     /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match. If there is no match, the <see cref="StreamRegexMatch.Success"/> will be false, and the <see cref="StreamRegexMatch.Value"/> will be null.</returns>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this IEnumerable<Regex> engines, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);

@@ -8,3 +8,4 @@ obj/
 **/.idea/encodings.xml
 **/.idea/indexlayout.xml
 **/.idea/projectSettingsUpdater.xml
+.vs/**

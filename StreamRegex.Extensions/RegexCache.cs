@@ -23,14 +23,16 @@ public class RegexCache : IEnumerable<Regex>
     }
     
     private readonly ConcurrentBag<Regex> _collection = new();
-    
-    /// <inheritdoc/>
+
+    /// <summary>
+    /// Gets an <see cref="IEnumerable{Regex}"/> over the <see cref="Regex"/> in the collection.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<Regex> GetEnumerator()
     {
         return _collection.GetEnumerator();
     }
     
-    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();

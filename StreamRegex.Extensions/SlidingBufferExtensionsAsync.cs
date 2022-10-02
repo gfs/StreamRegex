@@ -5,27 +5,30 @@ using System.Threading.Tasks;
 
 namespace StreamRegex.Extensions;
 
+/// <summary>
+/// Asyncronous Extension methods for matching <see cref="Stream"/> and <see cref="StreamReader"/>.
+/// </summary>
 public static class SlidingBufferExtensionsAsync
 {
     /// <summary>
     /// Check if a <see cref="Stream"/> matches the provided <paramref name="action"/>
     /// </summary>
-    /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
+    /// <param name="tomatch">The <see cref="Stream"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>True if the <see cref="streamToMatch"/> matches the <see cref="action"/></returns>
+    /// <returns>True if the <paramref name="tomatch"/> matches the <paramref name="action"/>></returns>
     public static async Task<bool> IsMatchAsync(this Stream tomatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {
         return await new StreamReader(tomatch).IsMatchAsync(action, options);
     }
-    
+
     /// <summary>
     /// Check if a <see cref="StreamReader"/> matches the provided <paramref name="action"/>
     /// </summary>
     /// <param name="streamReaderToMatch">The <see cref="StreamReader"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>True if the <see cref="streamReaderToMatch"/> matches the <see cref="action"/></returns>
+    /// <returns>True if the <paramref name="streamReaderToMatch"/> matches the <paramref name="action"/></returns>
     public static async Task<bool> IsMatchAsync(this StreamReader streamReaderToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {        
         var opts = options ?? new();
@@ -72,26 +75,26 @@ public static class SlidingBufferExtensionsAsync
     {
         return await new StreamReader(streamToMatch).GetFirstMatchAsync(action, options);
     }
-    
+
     /// <summary>
     /// Get the all matches for a <see cref="Stream"/> from an Function.
     /// </summary>
     /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamToMatch"/>.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamToMatch"/>.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Stream streamToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {
         return await new StreamReader(streamToMatch).GetMatchCollectionAsync(action, options);
     }
-    
+
     /// <summary>
     /// Get the all matches for a <see cref="StreamReader"/> from an Function.
     /// </summary>
     /// <param name="streamReaderToMatch"><see cref="Stream"/> to check for matches</param>
     /// <param name="action">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <see cref="streamReaderToMatch"/>.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamReaderToMatch"/>.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this StreamReader streamReaderToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {        
         SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();

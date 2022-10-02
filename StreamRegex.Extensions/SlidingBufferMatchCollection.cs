@@ -61,6 +61,10 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T> where T : SlidingB
         return this;
     }
 
+    /// <summary>
+    /// Gets an Enumerator over the <see cref="SlidingBufferMatch"/> in the collection.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator<T> GetEnumerator()
     {
         return _collection.GetEnumerator();
