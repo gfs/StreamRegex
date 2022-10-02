@@ -3,6 +3,9 @@
 A .NET Library with Extension Methods for performing arbitrary checks on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
 
 The Extensions are available on Nuget: [https://www.nuget.org/packages/StreamRegex.Extensions/](https://www.nuget.org/packages/StreamRegex.Extensions/)
+
+Auto-Generated API Documentation is hosted on [GitHub Pages](https://gfs.github.io/StreamRegex/api/StreamRegex.Extensions.html).
+
 ## Motivation
 
 When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
