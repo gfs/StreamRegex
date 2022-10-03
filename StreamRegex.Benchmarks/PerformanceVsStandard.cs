@@ -47,11 +47,11 @@ public class PerformanceVsStandard
     
     const int zeroPadding = 0;
 
-    // 50 MB
-    const int midPadding = 1000 * 50;
-
     // 100 MB
-    const int longPadding = 1000 * 100;
+    const int midPadding = 1000 * 100;
+
+    // 200 MB
+    const int longPadding = 1000 * 200;
 
 
     [Params(1000)]
@@ -63,7 +63,7 @@ public class PerformanceVsStandard
 
 
     [BenchmarkCategory("Regex")]
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public void CompiledRegex()
     {
         _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
@@ -85,58 +85,58 @@ public class PerformanceVsStandard
             throw new Exception($"The regex didn't match.");
         }
     }
-    
-    [BenchmarkCategory("IndexOf")]
-    [Benchmark]
-
-    public void ReadThenStringIndexOf()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().IndexOf("racecar");
-        if (match == -1)
-        {
-            throw new Exception($"The IndexOf didn't match.");
-        }
-    }
-    
-    [BenchmarkCategory("IndexOf")]
-    [Benchmark]
-    public void IndexOfExtension()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
-        var match = content.IndexOf("racecar");
-        if (match == -1)
-        {
-            throw new Exception($"The IndexOf didn't match.");
-        }
-    }
-
-    [BenchmarkCategory("Contains")]
-    [Benchmark]
-
-    public void ReadThenStringContains()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().Contains("racecar");
-        if (!match)
-        {
-            throw new Exception($"The Contains didn't match.");
-        }
-    }
-
-    [BenchmarkCategory("Contains")]
-    [Benchmark]
-    public void ContainsExtension()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
-        var match = content.Contains("racecar");
-        if (!match)
-        {
-            throw new Exception($"The Contains didn't match.");
-        }
-    }
+    //
+    // [BenchmarkCategory("IndexOf")]
+    // [Benchmark]
+    //
+    // public void ReadThenStringIndexOf()
+    // {
+    //     _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+    //     var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().IndexOf("racecar");
+    //     if (match == -1)
+    //     {
+    //         throw new Exception($"The IndexOf didn't match.");
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("IndexOf")]
+    // [Benchmark]
+    // public void IndexOfExtension()
+    // {
+    //     _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+    //     var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
+    //     var match = content.IndexOf("racecar");
+    //     if (match == -1)
+    //     {
+    //         throw new Exception($"The IndexOf didn't match.");
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("Contains")]
+    // [Benchmark]
+    //
+    // public void ReadThenStringContains()
+    // {
+    //     _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+    //     var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().Contains("racecar");
+    //     if (!match)
+    //     {
+    //         throw new Exception($"The Contains didn't match.");
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("Contains")]
+    // [Benchmark]
+    // public void ContainsExtension()
+    // {
+    //     _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+    //     var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
+    //     var match = content.Contains("racecar");
+    //     if (!match)
+    //     {
+    //         throw new Exception($"The Contains didn't match.");
+    //     }
+    // }
 
 
     //// [Benchmark]
