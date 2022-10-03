@@ -175,21 +175,41 @@ A sliding buffer is used across the stream. The `OverlapSize` parameter is the a
 
 https://github.com/gfs/StreamRegex/blob/fce9cdbbe5bdcf3629ece9547a4c5230b941d072/StreamRegex.Extensions/SlidingBufferExtensions.cs#L206-L245
 ## Benchmarks
-These benchmarks were run with a pre-release version of the library. 
+The benchmark results below are a selection of the results from the Benchmarks project in the repository.
 
-### Large File Test
-* This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
+### Performance on Large Files
+* A Stream is generated of length `paddingSegmentLength * numberPaddingSegmentsBefore` + `paddingSegmentLength * numberPaddingSegmentsAfter` + the length of a target string. There is only one match for the target operation in the Stream.
 * The query used for both regex and string matching was `racecar` - no regex operators.
-* The benchmarks for CompiledRegex and SimpleString operations emulate existing behavior of reading the contents of the Stream into a string to be queried.
-* This library allocates significantly less memory and for Regular Expressions is faster.
+* The `CompiledRegex` benchmark uses the `IsMatch` method of a Regex which is compiled before the test. The cost of converting the Stream into a String before operation is included.
 
-|          Method | TestFileName |       Mean |    Error |   StdDev | Ratio |      Gen 0 |      Gen 1 |     Gen 2 | Allocated |
-|---------------- |------------- |-----------:|---------:|---------:|------:|-----------:|-----------:|----------:|----------:|
-|   CompiledRegex |    175MB.txt |   438.3 ms |  8.72 ms | 10.71 ms |  0.10 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-|  RegexExtension |    175MB.txt |   214.4 ms |  4.30 ms |  7.86 ms |  0.05 | 23000.0000 |          - |         - |    370 MB |
-|    SimpleString |    175MB.txt | 4,361.8 ms | 18.09 ms | 14.12 ms |  1.00 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-| StringExtension |    175MB.txt | 4,379.5 ms | 16.09 ms | 12.56 ms |  1.00 | 22000.0000 |          - |         - |    366 MB |
-
+|         Method | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |           Mean |          Error |         StdDev |         Median | Ratio | RatioSD |       Gen 0 |      Gen 1 |     Gen 2 |    Allocated |
+|--------------- |--------------------- |---------------------------- |--------------------------- |---------------:|---------------:|---------------:|---------------:|------:|--------:|------------:|-----------:|----------:|-------------:|
+|  CompiledRegex |                 1000 |                           0 |                          0 |       3.381 us |      0.1587 us |      0.4655 us |       3.200 us |  1.00 |    0.00 |           - |          - |         - |         4 KB |
+| RegexExtension |                 1000 |                           0 |                          0 |       6.151 us |      0.2991 us |      0.8772 us |       6.000 us |  1.85 |    0.36 |           - |          - |         - |        13 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                           0 |                     100000 | 145,016.025 us |  2,863.8565 us |  2,812.6900 us | 146,144.850 us | 1.000 |    0.00 |  26000.0000 | 14000.0000 | 3000.0000 |   391,533 KB |
+| RegexExtension |                 1000 |                           0 |                     100000 |       7.999 us |      0.3498 us |      1.0315 us |       7.750 us | 0.000 |    0.00 |           - |          - |         - |        21 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                           0 |                     200000 | 380,037.800 us |  3,195.3889 us |  2,668.2945 us | 380,053.900 us | 1.000 |    0.00 |  51000.0000 | 27000.0000 | 4000.0000 |   783,045 KB |
+| RegexExtension |                 1000 |                           0 |                     200000 |       8.481 us |      0.3589 us |      1.0470 us |       8.400 us | 0.000 |    0.00 |           - |          - |         - |        21 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      100000 |                          0 | 206,456.623 us |  1,783.4354 us |  1,489.2494 us | 206,538.800 us |  1.00 |    0.00 |  26000.0000 | 14000.0000 | 3000.0000 |   391,533 KB |
+| RegexExtension |                 1000 |                      100000 |                          0 |  99,272.350 us |    956.2306 us |    847.6735 us |  99,097.150 us |  0.48 |    0.00 |  25000.0000 |          - |         - |   209,821 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      100000 |                     100000 | 450,871.033 us |  6,973.2095 us |  6,522.7445 us | 452,891.400 us |  1.00 |    0.00 |  51000.0000 | 27000.0000 | 4000.0000 |   783,047 KB |
+| RegexExtension |                 1000 |                      100000 |                     100000 | 111,826.786 us |    577.9171 us |    512.3084 us | 111,795.200 us |  0.25 |    0.00 |  25000.0000 |          - |         - |   209,829 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      100000 |                     200000 | 641,967.681 us |  4,229.5275 us |  3,531.8470 us | 641,693.150 us |  1.00 |    0.00 |  76000.0000 | 41000.0000 | 5000.0000 | 1,174,559 KB |
+| RegexExtension |                 1000 |                      100000 |                     200000 | 111,957.180 us |    788.6008 us |    737.6577 us | 111,781.900 us |  0.17 |    0.00 |  25000.0000 |          - |         - |   209,829 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      200000 |                          0 | 517,166.436 us |  3,392.9147 us |  3,007.7305 us | 516,462.300 us |  1.00 |    0.00 |  51000.0000 | 27000.0000 | 4000.0000 |   783,045 KB |
+| RegexExtension |                 1000 |                      200000 |                          0 | 224,283.813 us |  1,959.6282 us |  1,833.0374 us | 224,403.000 us |  0.43 |    0.00 |  51000.0000 |          - |         - |   419,629 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      200000 |                     100000 | 713,163.153 us | 12,084.0404 us | 11,303.4189 us | 708,513.500 us |  1.00 |    0.00 |  76000.0000 | 41000.0000 | 5000.0000 | 1,174,557 KB |
+| RegexExtension |                 1000 |                      200000 |                     100000 | 221,747.320 us |  1,009.4813 us |    944.2694 us | 221,783.700 us |  0.31 |    0.01 |  51000.0000 |          - |         - |   419,637 KB |
+|                |                      |                             |                            |                |                |                |                |       | |             |            |           |              |
+|  CompiledRegex |                 1000 |                      200000 |                     200000 | 888,283.467 us | 17,136.2270 us | 16,029.2374 us | 881,548.800 us |  1.00 |    0.00 | 100000.0000 | 54000.0000 | 5000.0000 | 1,566,061 KB |
+| RegexExtension |                 1000 |                      200000 |                     200000 | 225,162.413 us |  1,318.3762 us |  1,233.2100 us | 225,180.000 us |  0.25 |    0.00 |  51000.0000 |          - |         - |   419,636 KB |
 ### Async vs Sync
 
 Because Span is not supported in async contexts async is significantly slower.
