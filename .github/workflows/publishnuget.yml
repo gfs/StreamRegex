@@ -28,7 +28,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Test
-      run: dotnet test --verbosity normal
+      run: dotnet test --verbosity normal -f net6.0
     - name: Build
       run: dotnet pack --no-restore StreamRegex.Extensions -o NuPkgs
     - name: Setup NuGet.exe for use with actions
