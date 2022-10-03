@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Extensions;
 using StreamRegex.Lib.DFA;
@@ -6,77 +7,47 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
-public class PerformanceVsStandard
+
+// Tests checking for the string "racecar" that only occurs at the end of a very large file.
+public class LargeFileBenchmarks
 {
     private readonly Regex _compiled;
     private const string Pattern = "racecar";
-    //private Stream _stream = new MemoryStream();
-    private Dictionary<(int, int, int), Stream> _streams = new();
-    public PerformanceVsStandard()
+    private Stream _stream = new MemoryStream();
+    private const int _paddingLength = 1024 * 1024 * 100; // 100 MB
+    private StringBuilder _testData = new StringBuilder();
+    public LargeFileBenchmarks()
     {
+        while (_testData.Length < _paddingLength)
+        {
+            _testData.Append(Enumerable.Repeat("a", 1024));
+        }
+
+        _testData.Append(Pattern);
         _compiled = new Regex(Pattern, RegexOptions.Compiled);
     }
-
-    // Does not contain e so cannot match racecar
-    string chars = "abcdfghijklmnopqrstuvwxyz123456789";
-    Random random = new Random();
 
     [IterationSetup]
     public void IterationSetup()
     {
-        if (!_streams.ContainsKey((numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)))
-        {
-            var _stream = new MemoryStream();
-            var streamWriter = new StreamWriter(_stream, leaveOpen: true);
-            for (int i = 0; i < numberPaddingSegmentsBefore; i++)
-            {
-                streamWriter.Write(Enumerable.Repeat(0, paddingSegmentLength).Select(_ => chars[random.Next(chars.Length)]));
-            }
-
-            streamWriter.Write(Pattern);
-
-            for (int i = 0; i < numberPaddingSegmentsAfter; i++)
-            {
-                streamWriter.Write(Enumerable.Repeat(0, paddingSegmentLength).Select(_ => chars[random.Next(chars.Length)]));
-            }
-            streamWriter.Close();
-            _stream.Position = 0;
-            _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)] = _stream;
-        }
-        else
-        {
-            _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        }
-        var reader = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
-        var stringversion = reader.ReadToEnd();
+        _stream = new MemoryStream(Encoding.UTF8.GetBytes(_testData.ToString()));
     }
 
-    const int zeroPadding = 0;
-
-    // 50 MB
-    const int midPadding = 1000 * 50;
-
-    // 100 MB
-    const int longPadding = 1000 * 100;
-
-
-    [Params(1000)]
-    public int paddingSegmentLength { get; set; }
-    [Params(zeroPadding, midPadding, longPadding)]
-    public int numberPaddingSegmentsBefore { get; set; }
-    [Params(zeroPadding, midPadding, longPadding)]
-    public int numberPaddingSegmentsAfter { get; set; }
-
-
+    [IterationCleanup]
+    public void IterationCleanup()
+    {
+        _stream.Dispose();
+    }
+    
     [BenchmarkCategory("Regex")]
     [Benchmark]
     public void CompiledRegex()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
-        if (!_compiled.IsMatch(content))
+        var content = new StreamReader(_stream).ReadToEnd();
+        var match = _compiled.Match(content);
+        if (!match.Success || match.Index != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match.Index}.");
         }
     }
     
@@ -84,85 +55,57 @@ public class PerformanceVsStandard
     [Benchmark]
     public void RegexExtension()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
-        if (!_compiled.IsMatch(content))
+        var content = new StreamReader(_stream);
+        var match = _compiled.GetFirstMatch(content);
+        if (!match.Success || match.Index != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match.Index}.");
         }
     }
     
-    [BenchmarkCategory("IndexOf")]
+    [BenchmarkCategory("Contains")]
     [Benchmark(Baseline = true)]
 
-    public void ReadThenStringIndexOf()
+    public void SimpleString()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().IndexOf("racecar");
-        if (match == -1)
+        var match = new StreamReader(_stream).ReadToEnd().IndexOf("racecar");
+        if (match != _paddingLength)
         {
-            throw new Exception($"The IndexOf didn't match.");
+            throw new Exception($"The regex didn't match {match}.");
         }
     }
     
-    [BenchmarkCategory("IndexOf")]
+    [BenchmarkCategory("Contains")]
     [Benchmark]
-    public void IndexOfExtension()
+    public void StringExtension()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
+        var content = new StreamReader(_stream);
         var match = content.IndexOf("racecar");
-        if (match == -1)
+        if (match != _paddingLength)
         {
-            throw new Exception($"The IndexOf didn't match.");
+            throw new Exception($"The regex didn't match {match}.");
         }
     }
-
-    [BenchmarkCategory("Contains")]
-    [Benchmark(Baseline = true)]
-
-    public void ReadThenStringContains()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var match = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd().Contains("racecar");
-        if (!match)
-        {
-            throw new Exception($"The Contains didn't match.");
-        }
-    }
-
-    [BenchmarkCategory("Contains")]
-    [Benchmark]
-    public void ContainsExtension()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
-        var match = content.Contains("racecar");
-        if (!match)
-        {
-            throw new Exception($"The Contains didn't match.");
-        }
-    }
-
-
-    //// [Benchmark]
-    //public void StateMachine()
-    //{
-    //    var stateMachine = StateMachineFactory.CreateStateMachine(Pattern);
-    //    if (stateMachine.GetFirstMatchPosition(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)]) == -1)
-    //    {
-    //        throw new Exception("The regex didn't match");
-    //    }
-    //}
     
-    //// [Benchmark]
-    //public void NFAStateMachine()
-    //{
-    //    var stateMachine = NfaStateMachineFactory.CreateStateMachine(Pattern);
-    //    var match = stateMachine.Match(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)]);
-    //    if (match is null)
-    //    {
-    //        throw new Exception("The regex didn't match");
-    //    }
-    //}
+    
+    // [Benchmark]
+    public void StateMachine()
+    {
+        var stateMachine = StateMachineFactory.CreateStateMachine(Pattern);
+        if (stateMachine.GetFirstMatchPosition(_stream) == -1)
+        {
+            throw new Exception("The regex didn't match");
+        }
+    }
+    
+    // [Benchmark]
+    public void NFAStateMachine()
+    {
+        var stateMachine = NfaStateMachineFactory.CreateStateMachine(Pattern);
+        var match = stateMachine.Match(_stream);
+        if (match is null)
+        {
+            throw new Exception("The regex didn't match");
+        }
+    }
 }

@@ -14,7 +14,7 @@ namespace StreamRegex.Tests;
 [TestClass]
 public class BenchmarksBehavior
 {
-    private readonly Regex _compiled;
+    private readonly Regex _compiled = new Regex(Pattern, RegexOptions.Compiled);
     private const string Pattern = "racecar";
     //private Stream _stream = new MemoryStream();
     private Dictionary<(int, int, int), Stream> _streams = new();
@@ -23,7 +23,7 @@ public class BenchmarksBehavior
     string chars = "abcdfghijklmnopqrstuvwxyz123456789";
     Random random = new Random();
 
-    const int paddingSegmentLength = 100;
+    const int paddingSegmentLength = 1000;
 
     [DataRow(zeroPadding, longPadding, paddingSegmentLength)]
     [DataRow(midPadding, midPadding, paddingSegmentLength)]
@@ -37,14 +37,14 @@ public class BenchmarksBehavior
             var streamWriter = new StreamWriter(_stream, leaveOpen: true);
             for (int i = 0; i < paddingStart; i++)
             {
-                streamWriter.Write(Enumerable.Repeat(0, paddingLength).Select(_ => chars[random.Next(chars.Length)]));
+                streamWriter.Write(getRandomString(paddingLength));
             }
 
             streamWriter.Write(Pattern);
 
             for (int i = 0; i < paddingEnd; i++)
             {
-                streamWriter.Write(Enumerable.Repeat(0, paddingLength).Select(_ => chars[random.Next(chars.Length)]));
+                streamWriter.Write(getRandomString(paddingLength));
             }
             streamWriter.Close();
             _stream.Position = 0;
@@ -56,13 +56,25 @@ public class BenchmarksBehavior
         }
         var reader = new StreamReader(_streams[(paddingStart, paddingEnd, paddingLength)], leaveOpen: true);
         var stringversion = reader.ReadToEnd();
+        Assert.IsTrue(stringversion.Contains(Pattern));
+        _streams[(paddingStart, paddingEnd, paddingLength)].Position = 0;
+        var content = new StreamReader(_streams[(paddingStart, paddingEnd, paddingLength)], leaveOpen: true).ReadToEnd();
+        if (!_compiled.IsMatch(content))
+        {
+            throw new Exception($"The regex didn't match.");
+        }
+    }
+
+    private string getRandomString(int numCharacters)
+    {
+        return new string(Enumerable.Repeat(0, numCharacters).Select(_ => chars[random.Next(chars.Length)]).ToArray());
     }
 
     const int zeroPadding = 0;
 
     // 50 MB
-    const int midPadding = 50;
+    const int midPadding = 1000 * 50;
 
     // 100 MB
-    const int longPadding = 100;
+    const int longPadding = 1000 * 100;
 }
