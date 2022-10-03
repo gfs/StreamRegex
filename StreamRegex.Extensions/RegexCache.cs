@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// This class can be used with the extension methods to check multiple regexes at once against the same StreamReader.
+/// A bag of <see cref="Regex"/> to use with the extension methods.
 /// </summary>
 public class RegexCache : IEnumerable<Regex>
 {

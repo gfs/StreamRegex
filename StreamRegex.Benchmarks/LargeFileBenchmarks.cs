@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Extensions;
 using StreamRegex.Lib.DFA;
@@ -6,20 +7,30 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
-public class PerformanceVsStandard
+
+// Tests checking for the string "racecar" that only occurs at the end of a very large file.
+public class LargeFileBenchmarks
 {
     private readonly Regex _compiled;
     private const string Pattern = "racecar";
     private Stream _stream = new MemoryStream();
-    public PerformanceVsStandard()
+    private const int _paddingLength = 1024 * 1024 * 100; // 100 MB
+    private StringBuilder _testData = new StringBuilder();
+    public LargeFileBenchmarks()
     {
+        while (_testData.Length < _paddingLength)
+        {
+            _testData.Append(Enumerable.Repeat("a", 1024));
+        }
+
+        _testData.Append(Pattern);
         _compiled = new Regex(Pattern, RegexOptions.Compiled);
     }
 
     [IterationSetup]
     public void IterationSetup()
     {
-        _stream = File.OpenRead(TestFileName);
+        _stream = new MemoryStream(Encoding.UTF8.GetBytes(_testData.ToString()));
     }
 
     [IterationCleanup]
@@ -28,18 +39,15 @@ public class PerformanceVsStandard
         _stream.Dispose();
     }
     
-    //[Params("TargetStart.txt","TargetMiddle.txt","TargetEnd.txt")]
-    [Params("175MB.txt")]
-    public string TestFileName { get; set; }
-    
     [BenchmarkCategory("Regex")]
     [Benchmark]
     public void CompiledRegex()
     {
         var content = new StreamReader(_stream).ReadToEnd();
-        if (!_compiled.IsMatch(content))
+        var match = _compiled.Match(content);
+        if (!match.Success || match.Index != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match.Index}.");
         }
     }
     
@@ -48,9 +56,10 @@ public class PerformanceVsStandard
     public void RegexExtension()
     {
         var content = new StreamReader(_stream);
-        if (!_compiled.IsMatch(content))
+        var match = _compiled.GetFirstMatch(content);
+        if (!match.Success || match.Index != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match.Index}.");
         }
     }
     
@@ -60,9 +69,9 @@ public class PerformanceVsStandard
     public void SimpleString()
     {
         var match = new StreamReader(_stream).ReadToEnd().IndexOf("racecar");
-        if (match == -1)
+        if (match != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match}.");
         }
     }
     
@@ -72,9 +81,9 @@ public class PerformanceVsStandard
     {
         var content = new StreamReader(_stream);
         var match = content.IndexOf("racecar");
-        if (match == -1)
+        if (match != _paddingLength)
         {
-            throw new Exception($"The regex didn't match.");
+            throw new Exception($"The regex didn't match {match}.");
         }
     }
     
