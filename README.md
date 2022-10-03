@@ -175,21 +175,25 @@ A sliding buffer is used across the stream. The `OverlapSize` parameter is the a
 
 https://github.com/gfs/StreamRegex/blob/fce9cdbbe5bdcf3629ece9547a4c5230b941d072/StreamRegex.Extensions/SlidingBufferExtensions.cs#L206-L245
 ## Benchmarks
-These benchmarks were run with a pre-release version of the library. 
+The benchmark results below are a selection of the results from the Benchmarks project in the repository.
 
-### Large File Test
-* This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
+### Performance on Large Files
+* A Stream is generated of length `paddingSegmentLength * numberPaddingSegmentsBefore` + `paddingSegmentLength * numberPaddingSegmentsAfter` + the length of a target string. There is only one match for the target operation in the Stream.
 * The query used for both regex and string matching was `racecar` - no regex operators.
-* The benchmarks for CompiledRegex and SimpleString operations emulate existing behavior of reading the contents of the Stream into a string to be queried.
-* This library allocates significantly less memory and for Regular Expressions is faster.
+* The `CompiledRegex` benchmark uses the `IsMatch` method of a Regex which is compiled before the test. The cost of converting the Stream into a String before operation is included.
+* If the finding is located at the start of the Stream we see a 20,000x speedup and an 18,644x reduction in amount of memory used.
+* If the finding is located in the middle of the Stream we see a ~4x speedup and a ~4x reduction in memory usage.
+* If the fingind is lcoated at the end of the Stream we see a ~2.5x speedup and a ~2x reduction in memory usage.
 
-|          Method | TestFileName |       Mean |    Error |   StdDev | Ratio |      Gen 0 |      Gen 1 |     Gen 2 | Allocated |
-|---------------- |------------- |-----------:|---------:|---------:|------:|-----------:|-----------:|----------:|----------:|
-|   CompiledRegex |    175MB.txt |   438.3 ms |  8.72 ms | 10.71 ms |  0.10 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-|  RegexExtension |    175MB.txt |   214.4 ms |  4.30 ms |  7.86 ms |  0.05 | 23000.0000 |          - |         - |    370 MB |
-|    SimpleString |    175MB.txt | 4,361.8 ms | 18.09 ms | 14.12 ms |  1.00 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-| StringExtension |    175MB.txt | 4,379.5 ms | 16.09 ms | 12.56 ms |  1.00 | 22000.0000 |          - |         - |    366 MB |
 
+| Method                 | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |           Mean |         Error |         StdDev |         Median |      Gen 0 |      Gen 1 |     Gen 2 |  Allocated |
+|----------------------- |--------------------- |---------------------------- |--------------------------- |---------------:|--------------:|---------------:|---------------:|-----------:|-----------:|----------:|-----------:|
+|          CompiledRegex |                 1000 |                           0 |                     100000 | 162,222.236 us | 2,526.0027 us |  2,239.2356 us | 161,818.200 us | 26000.0000 | 14000.0000 | 3000.0000 | 391,533 KB |
+|         RegexExtension |                 1000 |                           0 |                     100000 |       8.078 us |     0.3774 us |      1.0948 us |       7.700 us | - |          - |         - |      21 KB |
+|          CompiledRegex |                 1000 |                      100000 |                     100000 | 485,832.839 us | 9,497.0205 us | 10,161.7055 us | 483,620.250 us | 51000.0000 | 27000.0000 | 4000.0000 | 783,045 KB |
+|         RegexExtension |                 1000 |                      100000 |                     100000 | 111,593.716 us | 2,215.5921 us |  3,383.4432 us | 112,188.200 us | 25000.0000 |          - |         - | 209,829 KB |
+|          CompiledRegex |                 1000 |                      100000 |                          0 | 224,392.006 us | 4,217.4968 us |  4,142.1458 us | 223,900.000 us | 26000.0000 | 14000.0000 | 3000.0000 | 391,525 KB |
+|         RegexExtension |                 1000 |                      100000 |                          0 |  98,293.693 us |   748.6467 us |    700.2846 us |  98,222.300 us | 25000.0000 |          - |         - | 209,822 KB |
 ### Async vs Sync
 
 Because Span is not supported in async contexts async is significantly slower.
