@@ -30,13 +30,18 @@ public class ExtensionTests
     public void TestBufferOverlap()
     {
         var compiled = new Regex("45", RegexOptions.Compiled);
-        var res = compiled.GetFirstMatch(StringToStream(ShortTestString), new StreamRegexOptions()
+        var stream = StringToStream(ShortTestString);
+        var res = compiled.GetFirstMatch(stream, new StreamRegexOptions()
         {
             BufferSize = 4,
             OverlapSize = 2
         });
         Assert.IsTrue(res.Success);
-        Assert.AreEqual("45",res.Value);
+        stream.Position = res.Index;
+        var reader = new StreamReader(stream);
+        var first = (char)reader.Read();
+        var second = (char)reader.Read();
+        Assert.AreEqual("45", $"{first}{second}");
     }
     
     /// <summary>
@@ -54,7 +59,7 @@ public class ExtensionTests
         var collection = compiled.GetMatchCollection(StringToStream("123456"), opts);
         Assert.AreEqual(1, collection.Count());
         Assert.AreEqual(2, collection.First().Index);
-        Assert.AreEqual("34", collection.First().Value);
+        Assert.AreEqual(2, collection.First().Length);
     }
     
     [TestMethod]
@@ -87,12 +92,16 @@ public class ExtensionTests
     [TestMethod]
     public void TestMatchFunctionality()
     {
+        var targetMatch = "racecar";
+        var offset = 10000;
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
-        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", 10000));
-        var str = $"{prefix}racecar{prefix}";
-        var res = compiled.GetFirstMatch(StringToStream(str));
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", offset));
+        var str = $"{prefix}{targetMatch}{prefix}";
+        var stream = StringToStream(str);
+        var res = compiled.GetFirstMatch(stream);
         Assert.IsTrue(res.Success);
-        Assert.AreEqual("racecar",res.Value);
+        Assert.AreEqual(offset, res.Index);
+        Assert.AreEqual(targetMatch.Length, res.Length);
     }
 
     [TestMethod]
@@ -104,7 +113,6 @@ public class ExtensionTests
         var res = compiled.GetFirstMatch(StringToStream(str));
         var res2 = compiled.Match(str);
         Assert.IsTrue(res.Success);
-        Assert.AreEqual("racecar",res.Value);
         Assert.AreEqual(res.Index, res2.Index);
     }
     
