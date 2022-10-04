@@ -36,7 +36,7 @@ public static class StringMethodExtensions
     {
         return comparisonType is { } notNullComparison ?
             streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, notNullComparison), options) :
-            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value), options);
+            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, StringComparison.Ordinal), options);
     }
 
     /// <summary>
@@ -75,10 +75,10 @@ public static class StringMethodExtensions
             var idx = contentChunk.IndexOf(value, comparisonType);
             if (idx != -1)
             {
-                return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + value.Length)]);
+                return new SlidingBufferValueMatch(true, idx, idx+value.Length);
             }
 
-            return new SlidingBufferMatch();
+            return new SlidingBufferValueMatch();
         }, options);
         return match.Index;
     }

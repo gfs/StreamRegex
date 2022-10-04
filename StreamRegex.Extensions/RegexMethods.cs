@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace StreamRegex.Extensions;
 
@@ -14,7 +16,8 @@ internal class RegexMethods
     {
         _engines = engines is RegexCache cache ? cache : new RegexCache(engines);
     }
-        
+
+    // Methods for async, which cannot use Spans
     internal IEnumerable<StreamRegexMatch> RegexGetMatchCollectionFunction(string arg)
     {
         foreach (var engine in _engines)
@@ -53,5 +56,76 @@ internal class RegexMethods
         }
 
         return false;
+    }
+    
+    internal SlidingBufferValueMatchCollection<SlidingBufferValueMatch> RegexGetMatchCollectionDelegate(ReadOnlySpan<char> chunk)
+    {
+#if NET7_0_OR_GREATER
+        SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchList = new();
+        foreach (var engine in _engines)
+        {
+            Regex.ValueMatchEnumerator matches = engine.EnumerateMatches(chunk);
+            foreach (ValueMatch match in matches)
+            {
+                matchList.Add(new StreamRegexValueMatch(engine, true, match.Index, match.Length));
+            }
+        }
+        return matchList;
+#else
+        SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchList = new();
+        foreach (var engine in _engines)
+        {
+            MatchCollection matches = engine.Matches(chunk.ToString());
+            foreach (Match match in matches)
+            {
+                matchList.Add(new StreamRegexValueMatch(engine, true, match.Index, match.Length));
+            }
+        }
+        return matchList;
+#endif
+    }
+
+    internal bool RegexIsMatchDelegate(ReadOnlySpan<char> chunk)
+    {
+        foreach (var engine in _engines)
+        {
+#if NET7_0_OR_GREATER
+            if (engine.IsMatch(chunk))
+#else
+            if (engine.IsMatch(chunk.ToString()))
+#endif
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    internal SlidingBufferValueMatch RegexGetFirstMatchDelegate(ReadOnlySpan<char> chunk)
+    {
+#if NET7_0_OR_GREATER
+        foreach (var engine in _engines)
+        {
+            Regex.ValueMatchEnumerator matches = engine.EnumerateMatches(chunk);
+            foreach (var match in matches)
+            {
+                return new StreamRegexValueMatch(engine, true, match.Index, match.Length);
+            }
+        }
+
+        return new StreamRegexValueMatch();
+#else
+        foreach (var engine in _engines)
+        {
+            MatchCollection matches = engine.Matches(chunk.ToString());
+            foreach (Match match in matches)
+            {
+                return new StreamRegexValueMatch(engine, true, match.Index, match.Length);
+            }
+        }
+
+        return new StreamRegexValueMatch();
+#endif
     }
 }
