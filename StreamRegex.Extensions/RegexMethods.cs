@@ -17,7 +17,11 @@ internal class RegexMethods
         _engines = engines is RegexCache cache ? cache : new RegexCache(engines);
     }
 
-    // Methods for async, which cannot use Spans
+    /// <summary>
+    /// Used for Async methods which cannot use the Span based delegates
+    /// </summary>
+    /// <param name="arg"></param>
+    /// <returns></returns>
     internal IEnumerable<StreamRegexMatch> RegexGetMatchCollectionFunction(string arg)
     {
         foreach (var engine in _engines)
@@ -30,6 +34,11 @@ internal class RegexMethods
         }
     }
 
+    /// <summary>
+    /// Used for Async methods which cannot use the Span based delegates
+    /// </summary>
+    /// <param name="arg"></param>
+    /// <returns></returns>
     internal StreamRegexMatch RegexGetFirstMatchFunction(string arg)
     {
         foreach (var engine in _engines)
@@ -43,7 +52,12 @@ internal class RegexMethods
 
         return new StreamRegexMatch(null);
     }
-        
+
+    /// <summary>
+    /// Used for Async methods which cannot use the Span based delegates
+    /// </summary>
+    /// <param name="arg"></param>
+    /// <returns></returns>
     internal bool RegexIsMatchFunction(string arg)
     {
         foreach (var engine in _engines)
