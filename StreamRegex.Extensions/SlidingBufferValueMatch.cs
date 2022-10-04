@@ -1,7 +1,7 @@
 ﻿namespace StreamRegex.Extensions;
 
 /// <summary>
-///  A match on the sliding from the Span APIs. Returns in the length of the match instead of Value to avoid allocations.
+/// A match that includes the Index and Length.
 /// </summary>
 /// <param name="Success">If the match was successful</param>
 /// <param name="Index">The position offset in the stream relative to the start when provided, or -1 if <paramref name="Success"/> is false</param>
