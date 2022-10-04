@@ -11,4 +11,8 @@ namespace StreamRegex.Extensions.RegexExtensions;
 /// <param name="Length">If <paramref name="Success"/> is true, the length of the value in the Stream that was matched. Otherwise -1.</param>
 public record StreamRegexValueMatch(Regex? Engine = null, bool Success = false, long Index = -1, long Length = -1) : SlidingBufferValueMatch(Success, Index, Length)
 {
+    /// <summary>
+    /// The Engine associated with the Match if successful, or null.
+    /// </summary>
+    public Regex? Engine { get; init; } = Engine;
 }

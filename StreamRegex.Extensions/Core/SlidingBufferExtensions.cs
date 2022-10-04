@@ -12,6 +12,7 @@ public static class SlidingBufferExtensions
     /// <summary>
     /// Delegate for IsMatch methods.
     /// </summary>
+    /// <param name="chunk">The section of the Stream currently being checked</param>
     public delegate bool IsMatchDelegate(ReadOnlySpan<char> chunk);
 
     /// <summary>
@@ -72,6 +73,7 @@ public static class SlidingBufferExtensions
     /// <summary>
     /// Delegate for GetFirstMatch methods.
     /// </summary>
+    /// <param name="chunk">The section of the Stream currently being checked</param>
     public delegate SlidingBufferValueMatch GetFirstMatchDelegate(ReadOnlySpan<char> chunk);
 
     /// <summary>
@@ -135,6 +137,7 @@ public static class SlidingBufferExtensions
     /// <summary>
     /// Delegate for GetMatchCollection methods.
     /// </summary>
+    /// <param name="chunk">The section of the Stream currently being checked</param>
     public delegate SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollectionDelegate(ReadOnlySpan<char> chunk);
 
     /// <summary>
