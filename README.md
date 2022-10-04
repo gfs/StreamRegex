@@ -24,10 +24,10 @@ Regex myRegex = new Regex(expression);
 StreamReader reader = new StreamReader(stream);
 
 // Get matches
-SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchCollection = myRegex.GetMatchCollection(reader);
+SlidingBufferValueMatchCollection<StreamRegexValueMatch> matchCollection = myRegex.GetMatchCollection(reader);
 if (matchCollection.Any())
 {
-    foreach(SlidingBufferValueMatch match in matchCollection)
+    foreach(StreamRegexValueMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -78,10 +78,10 @@ Stream stream;
 Regex myRegex = new Regex(expression);
 
 // Get matches
-SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchCollection = myRegex.GetMatchCollection(stream);
+SlidingBufferValueMatchCollection<StreamRegexValueMatch> matchCollection = myRegex.GetMatchCollection(stream);
 if (matchCollection.Any())
 {
-    foreach(SlidingBufferValueMatch match in matchCollection)
+    foreach(StreamRegexValueMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -133,7 +133,7 @@ SlidingBufferValueMatch YourMethod(ReadOnlySpan<char> chunk)
     var idx = contentChunk.IndexOf(target, comparison);
     if (idx != -1)
     {
-        return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + target.Length)]);
+        return new SlidingBufferValueMatch(true, idx, target.Length);
     }
 
     return new SlidingBufferMatch();
@@ -163,7 +163,7 @@ public IEnumerable<SlidingBufferValueMatch> YourMethod(ReadOnlySpan<char> arg)
 {
     foreach (Match match in engine.MakeMatches(arg))
     {
-        yield return new SlidingBufferMatch(true, match.Index, match.Value);
+        yield return new SlidingBufferValueMatch(true, match.Index, match.Length);
     }
 }
 
