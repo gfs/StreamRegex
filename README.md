@@ -15,7 +15,7 @@ Here is some simple sample code to get started
 ### StreamReader
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 
 // Construct your regex as normal
 Regex myRegex = new Regex(expression);
@@ -24,10 +24,10 @@ Regex myRegex = new Regex(expression);
 StreamReader reader = new StreamReader(stream);
 
 // Get matches
-StreamRegexMatchCollection matchCollection = myRegex.GetMatchCollection(reader);
+SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchCollection = myRegex.GetMatchCollection(reader);
 if (matchCollection.Any())
 {
-    foreach(StreamRegexMatch match in matchCollection)
+    foreach(SlidingBufferValueMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -41,7 +41,7 @@ else
 Alternately check if there is only one match. Note that the position of the Stream or StreamReader is not reset by these methods. Ensure the position of your stream is where you want to start parsing.
 ```c#
 // Get only the first match
-StreamRegexMatch match = myRegex.GetFirstMatch(reader);
+StreamRegexValueMatch match = myRegex.GetFirstMatch(reader);
 if (match.Matches)
 {
     // A match was found
@@ -69,7 +69,7 @@ else
 You can also call the methods on a Stream directly. If you do so, a StreamReader will be created to read it.
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 
 // This stream contains the content you want to check
 Stream stream;
@@ -78,10 +78,10 @@ Stream stream;
 Regex myRegex = new Regex(expression);
 
 // Get matches
-SlidingBufferMatchCollection<StreamRegexMatch> matchCollection = myRegex.GetMatchCollection(stream);
+SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchCollection = myRegex.GetMatchCollection(stream);
 if (matchCollection.Any())
 {
-    foreach(StreamRegexMatch match in matchCollection)
+    foreach(SlidingBufferValueMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -97,17 +97,17 @@ You can provide your own custom methods for both boolean matches and match metad
 ### For Boolean Matches
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 
-bool YourMethod(string chunk)
+bool YourMethod(ReadOnlySpan<char> chunk)
 {
     // Your logic here
 }
 
-if(reader.IsMatch(contentChunk => YourMethod(contentChunk))
+if(reader.IsMatch(YourMethod)
 {
     // Your method matched some chunk of the Stream
 }
@@ -119,7 +119,7 @@ else
 ### For Value Data
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
@@ -128,7 +128,7 @@ string target = "Something";
 
 // Return the index of the target string relative to the chunk. 
 // It will be adjusted to the correct relative position for the Stream automatically.
-SlidingBufferMatch YourMethod(string chunk)
+SlidingBufferValueMatch YourMethod(ReadOnlySpan<char> chunk)
 {
     var idx = contentChunk.IndexOf(target, comparison);
     if (idx != -1)
@@ -139,7 +139,7 @@ SlidingBufferMatch YourMethod(string chunk)
     return new SlidingBufferMatch();
 }
 
-var match = reader.GetFirstMatch(contentChunk => YourMethod(contentChunk);
+var match = reader.GetFirstMatch(YourMethod);
 if(match.Success)
 {
     // Your method matched some chunk of the Stream
@@ -153,13 +153,13 @@ else
 ### For a collection
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 // Your arbitrary engine that can generate multiple matches
 YourEngine engine = new MatchingEngine();
-public IEnumerable<SlidingBufferMatch> YourMethod(string arg)
+public IEnumerable<SlidingBufferValueMatch> YourMethod(ReadOnlySpan<char> arg)
 {
     foreach (Match match in engine.MakeMatches(arg))
     {
@@ -167,7 +167,7 @@ public IEnumerable<SlidingBufferMatch> YourMethod(string arg)
     }
 }
 
-var collection = reader.GetMatchCollection(contentChunk => YourMethod(contentChunk));
+var collection = reader.GetMatchCollection(YourMethod);
 ```
 
 ## How it works
