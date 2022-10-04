@@ -2,8 +2,10 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using StreamRegex.Extensions.Core;
+using StreamRegex.Extensions.RegexExtensions;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// Extends the <see cref="Regex"/> class with functionality to <see cref="Regex"/> asynchronously against <see cref="Stream"/> and <see cref="StreamReader"/>.
@@ -37,7 +39,7 @@ public static class StreamRegexExtensionsAsync
         var reader = new StreamReader(streamToMatch);
         return await engines.IsMatchAsync(reader, options);
     }
-    
+
     /// <summary>
     /// Find if a <see cref="Stream"/> matches a <see cref="Regex"/>.
     /// </summary>
@@ -50,7 +52,7 @@ public static class StreamRegexExtensionsAsync
         var reader = new StreamReader(streamToMatch);
         return await engine.IsMatchAsync(reader, options);
     }
-    
+
     /// <summary>
     /// Find if a <see cref="StreamReader"/> matches a regular expression.
     /// </summary>
@@ -104,7 +106,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this Regex engine, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
-        return await new[]{engine}.GetFirstMatchAsync(streamReaderToMatch, options);
+        return await new[] { engine }.GetFirstMatchAsync(streamReaderToMatch, options);
     }
 
     /// <summary>
@@ -121,7 +123,7 @@ public static class StreamRegexExtensionsAsync
         RegexMethods methods = new RegexMethods(engines);
         return (StreamRegexMatch)await streamReaderToMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchFunction);
     }
-    
+
     /// <summary>
     /// Find all matches for a given <see cref="Regex"/>
     /// </summary>
@@ -131,9 +133,9 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This object will be empty if there are no matches.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return await new[]{engine}.GetMatchCollectionAsync(new StreamReader(toMatch), options);
+        return await new[] { engine }.GetMatchCollectionAsync(new StreamReader(toMatch), options);
     }
-    
+
     /// <summary>
     /// Find all matches for a given <see cref="Regex"/>
     /// </summary>
@@ -143,9 +145,9 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This object will be empty if there are no matches.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return await new[]{engine}.GetMatchCollectionAsync(toMatch, options);
+        return await new[] { engine }.GetMatchCollectionAsync(toMatch, options);
     }
-    
+
     /// <summary>
     /// Find all matches for the engines in the set of regexes, for example a <see cref="RegexCache"/>
     /// </summary>

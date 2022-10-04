@@ -2,8 +2,10 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using StreamRegex.Extensions.Core;
+using StreamRegex.Extensions.RegexExtensions;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// Extends the <see cref="Regex"/> class with functionality to check against <see cref="StreamReader"/>.
@@ -45,7 +47,7 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return new[] {engine}.IsMatch(toMatch, options);
+        return new[] { engine }.IsMatch(toMatch, options);
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ public static class StreamRegexExtensions
     /// <returns>True if there is at least one match.</returns>
     public static bool IsMatch(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return new[] {engine}.IsMatch(toMatch, options);
+        return new[] { engine }.IsMatch(toMatch, options);
     }
 
     /// <summary>
@@ -82,7 +84,7 @@ public static class StreamRegexExtensions
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
     public static StreamRegexValueMatch GetFirstMatch(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return new[]{engine}.GetFirstMatch(toMatch, options);
+        return new[] { engine }.GetFirstMatch(toMatch, options);
     }
 
     /// <summary>
@@ -112,7 +114,7 @@ public static class StreamRegexExtensions
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return new[]{engine}.GetMatchCollection(new StreamReader(toMatch), options);
+        return new[] { engine }.GetMatchCollection(new StreamReader(toMatch), options);
     }
 
     /// <summary>
@@ -124,7 +126,7 @@ public static class StreamRegexExtensions
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
-        return new[]{engine}.GetMatchCollection(toMatch, options);
+        return new[] { engine }.GetMatchCollection(toMatch, options);
     }
 
     /// <summary>

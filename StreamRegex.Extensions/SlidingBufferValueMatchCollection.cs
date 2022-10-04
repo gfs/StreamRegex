@@ -1,6 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
+
+/* Unmerged change from project 'StreamRegex.Extensions (netstandard2.1)'
+Before:
+using System.Collections.Generic;
+After:
+using System.Collections.Generic;
+using StreamRegex;
+using StreamRegex.Extensions;
+using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
+*/
 using System.Collections.Generic;
 
 namespace StreamRegex.Extensions;
@@ -28,7 +39,7 @@ public class SlidingBufferValueMatchCollection<T> : IEnumerable<T>, ICollection,
     /// </summary>
     public object SyncRoot => throw new NotSupportedException();
 
-    internal SlidingBufferValueMatchCollection(){}
+    internal SlidingBufferValueMatchCollection() { }
 
     /// <summary>
     /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
@@ -41,7 +52,7 @@ public class SlidingBufferValueMatchCollection<T> : IEnumerable<T>, ICollection,
             _collection.Enqueue(match);
         }
     }
-    
+
     /// <summary>
     /// Add the matches in the provided <paramref name="matchCollection"/> to this collection. The added matches will be deduplicated.
     /// </summary>

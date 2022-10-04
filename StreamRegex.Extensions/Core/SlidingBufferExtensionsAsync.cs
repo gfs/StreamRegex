@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.Core;
 
 /// <summary>
 /// Asyncronous Extension methods for matching <see cref="Stream"/> and <see cref="StreamReader"/>.
@@ -30,7 +30,7 @@ public static class SlidingBufferExtensionsAsync
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>True if the <paramref name="streamReaderToMatch"/> matches the <paramref name="action"/></returns>
     public static async Task<bool> IsMatchAsync(this StreamReader streamReaderToMatch, Func<string, bool> action, SlidingBufferOptions? options = null)
-    {        
+    {
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
         // This is our string building buffer.
@@ -96,7 +96,7 @@ public static class SlidingBufferExtensionsAsync
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamReaderToMatch"/>.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this StreamReader streamReaderToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
-    {        
+    {
         SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();
 
         var opts = options ?? new();
@@ -135,7 +135,7 @@ public static class SlidingBufferExtensionsAsync
 
         return collection;
     }
-    
+
     /// <summary>
     /// Check if a StreamReader matches a Function
     /// </summary>
@@ -144,7 +144,7 @@ public static class SlidingBufferExtensionsAsync
     /// <param name="options"></param>
     /// <returns></returns>
     public static async Task<SlidingBufferMatch> GetFirstMatchAsync(this StreamReader toMatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
-    {        
+    {
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
         // This is our string building buffer.

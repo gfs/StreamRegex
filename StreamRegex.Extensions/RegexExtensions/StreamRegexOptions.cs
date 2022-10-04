@@ -1,4 +1,4 @@
-﻿namespace StreamRegex.Extensions;
+﻿namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// Currently this doesn't take any options other than those in <see cref="SlidingBufferOptions"/>.

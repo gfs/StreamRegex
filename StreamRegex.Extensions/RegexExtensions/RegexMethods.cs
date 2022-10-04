@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using StreamRegex.Extensions.Core;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// This class has the methods for the <see cref="StreamRegexExtensions"/> to use with the <see cref="SlidingBufferExtensions"/>
@@ -71,7 +72,7 @@ internal class RegexMethods
 
         return false;
     }
-    
+
     internal SlidingBufferValueMatchCollection<SlidingBufferValueMatch> RegexGetMatchCollectionDelegate(ReadOnlySpan<char> chunk)
     {
 #if NET7_0_OR_GREATER
@@ -112,7 +113,7 @@ internal class RegexMethods
                 return true;
             }
         }
-        
+
         return false;
     }
 
