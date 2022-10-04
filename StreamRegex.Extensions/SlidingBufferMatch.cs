@@ -1,7 +1,7 @@
 ﻿namespace StreamRegex.Extensions;
 
 /// <summary>
-///  A match on the sliding buffer.
+///  A match on the sliding buffer that includes the Value which was matched.
 /// </summary>
 /// <param name="Success">If the match was successful</param>
 /// <param name="Index">The position offset in the stream relative to the start when provided, or -1 if <paramref name="Success"/> is false</param>
