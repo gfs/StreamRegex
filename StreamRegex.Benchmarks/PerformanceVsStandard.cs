@@ -1,11 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using StreamRegex.Extensions;
-using StreamRegex.Lib.DFA;
-using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net70)]
 public class PerformanceVsStandard
 {
     private readonly Regex _compiled = new Regex(Pattern, RegexOptions.Compiled);
