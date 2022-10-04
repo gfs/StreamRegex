@@ -29,4 +29,4 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Test
-      run: dotnet test --verbosity normal -f net6.0
+      run: dotnet test --verbosity normal -f net7.0
