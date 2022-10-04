@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
+using StreamRegex.Extensions.Core;
+using StreamRegex.Extensions.StringMethods;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.StringMethods;
 
 /// <summary>
-/// Asynchronous methods to emulate <see cref="String.Contains(string)"/> and <see cref="String.IndexOf(string)"/> operations on Streams.
+/// Synchronous methods to emulate <see cref="string.Contains(string)"/> and <see cref="string.IndexOf(string)"/> operations on Streams.
 /// </summary>
-public static class StringMethodExtensionsAsync
+public static class StringMethodExtensions
 {
-    
+
     /// <summary>
     /// Check if a given string is contained in the given <see cref="Stream"/>.
     /// Using a <see cref="System.Text.RegularExpressions.Regex"/> may be faster.
@@ -19,9 +20,9 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamToCheck"/></returns>
-    public static async Task<bool> ContainsAsync(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static bool Contains(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToCheck).ContainsAsync(value, comparisonType, options);
+        return new StreamReader(streamToCheck).Contains(value, comparisonType, options);
     }
 
     /// <summary>
@@ -33,11 +34,11 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamReaderToCheck"/></returns>
-    public static async Task<bool> ContainsAsync(this StreamReader streamReaderToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static bool Contains(this StreamReader streamReaderToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
     {
-        return await (comparisonType is { } notNullComparison ?
-            streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value, notNullComparison), options) :
-            streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value), options));
+        return comparisonType is { } notNullComparison ?
+            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, notNullComparison), options) :
+            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, StringComparison.Ordinal), options);
     }
 
     /// <summary>
@@ -49,10 +50,9 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>The index offset relative to the position when <paramref name="streamToCheck"/> was provided or -1 if not found.</returns>
-
-    public static async Task<long> IndexOfAsync(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static long IndexOf(this Stream streamToCheck, string value, StringComparison comparisonType = StringComparison.CurrentCulture, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToCheck).IndexOfAsync(value, comparisonType, options);
+        return new StreamReader(streamToCheck).IndexOf(value, comparisonType, options);
     }
 
     /// <summary>
@@ -64,8 +64,7 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>The index offset relative to the position when <paramref name="streamReaderToCheck"/> was provided or -1 if not found.</returns>
-
-    public static async Task<long> IndexOfAsync(this StreamReader streamReaderToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static long IndexOf(this StreamReader streamReaderToCheck, string value, StringComparison comparisonType = StringComparison.CurrentCulture, SlidingBufferOptions? options = null)
     {
         var opts = options ?? new SlidingBufferOptions();
         // Ensure that we can find the target string
@@ -73,15 +72,15 @@ public static class StringMethodExtensionsAsync
         {
             opts.OverlapSize = value.Length;
         }
-        var match = await streamReaderToCheck.GetFirstMatchAsync(contentChunk =>
+        var match = streamReaderToCheck.GetFirstMatch(contentChunk =>
         {
-            var idx = comparisonType is {} notNullComparison ? contentChunk.IndexOf(value, notNullComparison) : contentChunk.IndexOf(value);
+            var idx = contentChunk.IndexOf(value, comparisonType);
             if (idx != -1)
             {
-                return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + value.Length)]);
+                return new SlidingBufferValueMatch(true, idx, idx + value.Length);
             }
 
-            return new SlidingBufferMatch();
+            return new SlidingBufferValueMatch();
         }, options);
         return match.Index;
     }

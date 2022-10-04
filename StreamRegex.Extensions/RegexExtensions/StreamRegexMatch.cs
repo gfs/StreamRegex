@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// A sliding buffer match from a <see cref="Regex"/>.

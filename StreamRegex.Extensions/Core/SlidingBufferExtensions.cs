@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.Core;
 
 /// <summary>
 /// Synchronous methods to perform arbitrary string check operations on <see cref="Stream"/> and <see cref="StreamReader"/>.
@@ -25,7 +25,7 @@ public static class SlidingBufferExtensions
     {
         return new StreamReader(streamToMatch).IsMatch(isMatchDelegate, options);
     }
-    
+
     /// <summary>
     /// Check if a <see cref="StreamReader"/> matches the provided <paramref name="isMatchDelegate"/>
     /// </summary>
@@ -34,7 +34,7 @@ public static class SlidingBufferExtensions
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>True if the <paramref name="streamReaderToMatch"/> matches the <paramref name="isMatchDelegate"/></returns>
     public static bool IsMatch(this StreamReader streamReaderToMatch, IsMatchDelegate isMatchDelegate, SlidingBufferOptions? options = null)
-    {        
+    {
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
         // This is our string building buffer.
@@ -68,7 +68,7 @@ public static class SlidingBufferExtensions
 
         return false;
     }
-    
+
     /// <summary>
     /// Delegate for GetFirstMatch methods.
     /// </summary>
@@ -85,7 +85,7 @@ public static class SlidingBufferExtensions
     {
         return new StreamReader(streamToMatch).GetFirstMatch(getFirstMatchDelegate, options);
     }
-    
+
     /// <summary>
     /// Get the first match for a <see cref="StreamReader"/> from an Function.
     /// </summary>
@@ -94,7 +94,7 @@ public static class SlidingBufferExtensions
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
     public static SlidingBufferValueMatch GetFirstMatch(this StreamReader streamReaderToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
-    {        
+    {
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
         // This is our string building buffer.
@@ -131,13 +131,13 @@ public static class SlidingBufferExtensions
 
         return new SlidingBufferValueMatch();
     }
-    
+
     /// <summary>
     /// Delegate for GetMatchCollection methods.
     /// </summary>
     public delegate SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollectionDelegate(ReadOnlySpan<char> chunk);
 
-        /// <summary>
+    /// <summary>
     /// Get the all matches for a <see cref="Stream"/> from an Function.
     /// </summary>
     /// <param name="streamToMatch">The <see cref="Stream"/> to check for matches</param>
@@ -157,7 +157,7 @@ public static class SlidingBufferExtensions
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamReaderToMatch"/>.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this StreamReader streamReaderToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
-    {        
+    {
         SlidingBufferValueMatchCollection<SlidingBufferValueMatch> collection = new();
 
         var opts = options ?? new();

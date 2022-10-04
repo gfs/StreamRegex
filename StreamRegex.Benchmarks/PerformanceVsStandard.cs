@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]

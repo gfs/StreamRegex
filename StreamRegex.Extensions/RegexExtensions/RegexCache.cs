@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace StreamRegex.Extensions;
+namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
 /// A bag of <see cref="Regex"/> to use with the extension methods.
@@ -21,7 +21,7 @@ public class RegexCache : IEnumerable<Regex>
             _collection.Add(regex);
         }
     }
-    
+
     private readonly ConcurrentBag<Regex> _collection = new();
 
     /// <summary>
@@ -32,7 +32,7 @@ public class RegexCache : IEnumerable<Regex>
     {
         return _collection.GetEnumerator();
     }
-    
+
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();

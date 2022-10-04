@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 

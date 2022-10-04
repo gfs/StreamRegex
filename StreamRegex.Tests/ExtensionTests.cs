@@ -6,7 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StreamRegex.Extensions;
-
+using StreamRegex.Extensions.RegexExtensions;
+using StreamRegex.Extensions.StringMethods;
 
 namespace StreamRegex.Tests;
 
