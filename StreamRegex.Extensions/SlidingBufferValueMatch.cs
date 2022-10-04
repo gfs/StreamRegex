@@ -9,7 +9,16 @@
 public record SlidingBufferValueMatch(bool Success = false, long Index = -1, long Length = -1)
 {
     /// <summary>
+    /// If a match was found
+    /// </summary>
+    public bool Success { get; init; } = Success;
+
+    /// <summary>
     /// The index in the Stream where the match was found
     /// </summary>
     public long Index { get; internal set; } = Index;
+    /// <summary>
+    /// The length of the match which was found
+    /// </summary>
+    public long Length { get; init; } = Length;
 }
