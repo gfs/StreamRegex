@@ -8,7 +8,7 @@ using StreamRegex.Extensions.RegexExtensions;
 namespace StreamRegex.Extensions.RegexExtensions;
 
 /// <summary>
-/// Extends the <see cref="Regex"/> class with functionality to check against <see cref="StreamReader"/>.
+/// Extends the <see cref="Regex"/> class with functionality to check against <see cref="StreamReader"/> and <see cref="Stream"/>.
 /// </summary>
 public static class StreamRegexExtensions
 {
@@ -68,7 +68,7 @@ public static class StreamRegexExtensions
     /// <param name="engine">The <see cref="Regex"/>  to operate with</param>
     /// <param name="toMatch">The <see cref="Stream"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
+    /// <returns>A <see cref="StreamRegexValueMatch"/> object representing the first, or lack of, Match.</returns>
     public static StreamRegexValueMatch GetFirstMatch(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
         using var reader = new StreamReader(toMatch, Encoding.UTF8, true, 4096, true);
@@ -81,7 +81,7 @@ public static class StreamRegexExtensions
     /// <param name="engine">The <see cref="Regex"/> to operate with</param>
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
+    /// <returns>A <see cref="StreamRegexValueMatch"/> object representing the first, or lack of, Match.</returns>
     public static StreamRegexValueMatch GetFirstMatch(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         return new[] { engine }.GetFirstMatch(toMatch, options);
@@ -93,7 +93,7 @@ public static class StreamRegexExtensions
     /// <param name="engines">The <see cref="IEnumerable{Regex}"/> to check against the Stream</param>
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
+    /// <returns>A <see cref="StreamRegexValueMatch"/> object representing the first, or lack of, Match.</returns>
     public static StreamRegexValueMatch GetFirstMatch(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
@@ -111,7 +111,7 @@ public static class StreamRegexExtensions
     /// <param name="engine">The Regex to operate with</param>
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
         return new[] { engine }.GetMatchCollection(new StreamReader(toMatch), options);
@@ -123,7 +123,7 @@ public static class StreamRegexExtensions
     /// <param name="engine">The <see cref="Regex"/> to operate with</param>
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         return new[] { engine }.GetMatchCollection(toMatch, options);
@@ -135,7 +135,7 @@ public static class StreamRegexExtensions
     /// <param name="engines">The <see cref="Regex"/> to operate with</param>
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use.</param>
-    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> containing unique matches. This collection will be empty if there are no matches.</returns>
+    /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> containing unique matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
