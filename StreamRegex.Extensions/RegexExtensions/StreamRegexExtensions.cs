@@ -112,7 +112,7 @@ public static class StreamRegexExtensions
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
-    public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
+    public static SlidingBufferValueMatchCollection<StreamRegexValueMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
         return new[] { engine }.GetMatchCollection(new StreamReader(toMatch), options);
     }
@@ -124,7 +124,7 @@ public static class StreamRegexExtensions
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
-    public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
+    public static SlidingBufferValueMatchCollection<StreamRegexValueMatch> GetMatchCollection(this Regex engine, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         return new[] { engine }.GetMatchCollection(toMatch, options);
     }
@@ -136,9 +136,18 @@ public static class StreamRegexExtensions
     /// <param name="toMatch">The <see cref="StreamReader"/> to match</param>
     /// <param name="options">The <see cref="StreamRegexOptions"/> to use.</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexValueMatch}"/> containing unique matches. This collection will be empty if there are no matches.</returns>
-    public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
+    public static SlidingBufferValueMatchCollection<StreamRegexValueMatch> GetMatchCollection(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
-        return toMatch.GetMatchCollection(methods.RegexGetMatchCollectionDelegate, options);
+        SlidingBufferValueMatchCollection<StreamRegexValueMatch> regexMatches = new();
+        var untypedCollection = toMatch.GetMatchCollection(methods.RegexGetMatchCollectionDelegate, options);
+        foreach(var match in untypedCollection)
+        {
+            if (match is StreamRegexValueMatch srvm)
+            {
+                regexMatches.AddMatch(srvm);
+            }
+        }
+        return regexMatches;
     }
 }
