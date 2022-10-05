@@ -7,26 +7,26 @@ on:
     branches: [ main ]
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        dotnet-version: ['3.1.x', '6.0.x', '7.0.x' ]
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-    - name: Setup .NET
+    - name: Setup .NET ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: ${{ matrix.dotnet-version }}
         include-prerelease: true
     - name: Nerdbank.GitVersioning
-      # You may pin to the exact commit or the version.
-      # uses: dotnet/nbgv@49d4f35f34d895d282b99855b2e0034f8f608ba5
       uses: dotnet/nbgv@v0.4.0
       with:
         setAllVars: true
-      
-    - name: Restore dependencies
+    - name: Install dependencies
       run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --verbosity normal -f net7.0
+      run: dotnet test --no-restore --verbosity normal
