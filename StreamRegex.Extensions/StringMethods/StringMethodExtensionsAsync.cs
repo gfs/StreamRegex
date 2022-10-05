@@ -21,7 +21,7 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamToCheck"/></returns>
-    public static async Task<bool> ContainsAsync(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static async Task<bool> ContainsAsync(this Stream streamToCheck, string value, StringComparison comparisonType = StringComparison.Ordinal, SlidingBufferOptions? options = null)
     {
         return await new StreamReader(streamToCheck, Encoding.Default, true, 4096, true).ContainsAsync(value, comparisonType, options);
     }
@@ -35,11 +35,9 @@ public static class StringMethodExtensionsAsync
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamReaderToCheck"/></returns>
-    public static async Task<bool> ContainsAsync(this StreamReader streamReaderToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static async Task<bool> ContainsAsync(this StreamReader streamReaderToCheck, string value, StringComparison comparisonType = StringComparison.Ordinal, SlidingBufferOptions? options = null)
     {
-        return await (comparisonType is { } notNullComparison ?
-            streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value, notNullComparison), options) :
-            streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value), options));
+        return await streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value, comparisonType), options);
     }
 
     /// <summary>
