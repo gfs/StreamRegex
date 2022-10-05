@@ -124,6 +124,7 @@ StreamRegexMatch match = myRegex.GetFirstMatch(reader, bufferOptions);
 ## To use Custom Method
 You can provide your own custom methods for both boolean matches and match metadata.
 ### For Boolean Matches
+Implement the `IsMatch` delegate.
 ```c#
 // Include this for the extension methods
 using StreamRegex.Extensions.Core;
@@ -146,6 +147,7 @@ else
 }
 ```
 ### For Value Data
+Implement the `GetFirstMatch` delegate.
 ```c#
 // Include this for the extension methods
 using StreamRegex.Extensions.Core;
@@ -180,6 +182,7 @@ else
 ```
 
 ### For a collection
+Implement the `GetMatchCollection` delegate.
 ```c#
 // Include this for the extension methods
 using StreamRegex.Extensions.Core;
@@ -188,12 +191,10 @@ using StreamRegex.Extensions.Core;
 StreamReader reader = new StreamReader(stream);
 // Your arbitrary engine that can generate multiple matches
 YourEngine engine = new MatchingEngine();
-public IEnumerable<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
+public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
 {
-    foreach (Match match in engine.MakeMatches(arg))
-    {
-        yield return new SlidingBufferMatch(true, match.Index, match.Length);
-    }
+    SlidingBufferMatchCollection<SlidingBufferMatch> matchCollection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
+    matchCollection.AddMatches(engine.MakeMatches(arg));
 }
 
 var collection = reader.GetMatchCollection(YourMethod);
