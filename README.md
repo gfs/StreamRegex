@@ -24,10 +24,10 @@ Regex myRegex = new Regex(expression);
 StreamReader reader = new StreamReader(stream);
 
 // Get matches
-SlidingBufferValueMatchCollection<StreamRegexValueMatch> matchCollection = myRegex.GetMatchCollection(reader);
+SlidingBufferMatchCollection<StreamRegexMatch> matchCollection = myRegex.GetMatchCollection(reader);
 if (matchCollection.Any())
 {
-    foreach(StreamRegexValueMatch match in matchCollection)
+    foreach(StreamRegexMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -41,7 +41,7 @@ else
 Alternately check if there is only one match. Note that the position of the Stream or StreamReader is not reset by these methods. Ensure the position of your stream is where you want to start parsing.
 ```c#
 // Get only the first match
-StreamRegexValueMatch match = myRegex.GetFirstMatch(reader);
+StreamRegexMatch match = myRegex.GetFirstMatch(reader);
 if (match.Matches)
 {
     // A match was found
@@ -78,10 +78,10 @@ Stream stream;
 Regex myRegex = new Regex(expression);
 
 // Get matches
-SlidingBufferValueMatchCollection<StreamRegexValueMatch> matchCollection = myRegex.GetMatchCollection(stream);
+SlidingBufferMatchCollection<StreamRegexMatch> matchCollection = myRegex.GetMatchCollection(stream);
 if (matchCollection.Any())
 {
-    foreach(StreamRegexValueMatch match in matchCollection)
+    foreach(StreamRegexMatch match in matchCollection)
     {
         // Do something with matches.
     }
@@ -90,6 +90,35 @@ else
 {
     // No match
 }
+```
+
+## Options
+You can adjust the internal buffer and overlap sizes, and capture the value that was matched as well as the Index using `SlidingBufferOptions`.
+
+* The `BufferSize` is the size of the internal `Span<char>` used for checking. 
+* The `OverlapSize` is the number of characters from the previous buffer to include at the start of the next to guarantee matches across boundaries.
+* If `CaptureValues` is set to true, `SlidingBufferMatch` objects (including `StreamRegexMatch` objects) will contain the value of the actual match in addition to the length. If false, match objects will only contain `Index` and `Length` of the match.
+
+```c#
+// Include this for the extension methods
+using StreamRegex.Extensions.RegexExtensions;
+// Include this for options objects
+using StreamRegex;
+
+// Construct your regex as normal
+Regex myRegex = new Regex(expression);
+
+var bufferOptions = new SlidingBufferOptions()
+{
+    BufferSize = 8192, // The number of characters to check at a time
+    OverlapSize = 512, // Must be as long as your longest desired match 
+    DelegateOptions = new DelegateOptions()
+    {
+        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch.
+    }
+};
+
+StreamRegexMatch match = myRegex.GetFirstMatch(reader, bufferOptions);
 ```
 
 ## To use Custom Method
@@ -128,12 +157,12 @@ string target = "Something";
 
 // Return the index of the target string relative to the chunk. 
 // It will be adjusted to the correct relative position for the Stream automatically.
-SlidingBufferValueMatch YourMethod(ReadOnlySpan<char> chunk)
+SlidingBufferMatch YourMethod(ReadOnlySpan<char> chunk)
 {
     var idx = contentChunk.IndexOf(target, comparison);
     if (idx != -1)
     {
-        return new SlidingBufferValueMatch(true, idx, target.Length);
+        return new SlidingBufferMatch(true, idx, target.Length);
     }
 
     return new SlidingBufferMatch();
@@ -159,11 +188,11 @@ using StreamRegex.Extensions.Core;
 StreamReader reader = new StreamReader(stream);
 // Your arbitrary engine that can generate multiple matches
 YourEngine engine = new MatchingEngine();
-public IEnumerable<SlidingBufferValueMatch> YourMethod(ReadOnlySpan<char> arg)
+public IEnumerable<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
 {
     foreach (Match match in engine.MakeMatches(arg))
     {
-        yield return new SlidingBufferValueMatch(true, match.Index, match.Length);
+        yield return new SlidingBufferMatch(true, match.Index, match.Length);
     }
 }
 
