@@ -28,6 +28,30 @@ public class ExtensionTests
     }
     
     [TestMethod]
+    public void StreamLeaveOpen()
+    {
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        var offset = 10000;
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", offset));
+        var target = "racecar";
+        var str = $"{prefix}{target}{prefix}";
+        var stream = StringToStream(str);
+        Assert.IsTrue(compiled.IsMatch(stream));
+        stream.Position = 0;
+        var firstMatch = compiled.GetFirstMatch(stream);
+        Assert.AreEqual(offset,firstMatch.Index);
+        stream.Position = 0;
+        var matches = compiled.GetMatchCollection(stream);
+        Assert.AreEqual(offset, matches.First().Index);
+        Assert.AreEqual(1, matches.Count);
+        stream.Position = 0;
+        Assert.IsTrue(stream.Contains(target));
+        stream.Position = 0;
+        Assert.AreEqual(offset, stream.IndexOf(target));
+        stream.Position = 0;
+    }
+    
+    [TestMethod]
     public void TestBufferOverlap()
     {
         var compiled = new Regex("45", RegexOptions.Compiled);

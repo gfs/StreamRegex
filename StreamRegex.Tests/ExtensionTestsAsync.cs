@@ -60,6 +60,31 @@ public class AsyncExtensionTests
     }
     
     [TestMethod]
+    // Test that the Stream isn't closed by the implicit stream reader
+    public async Task StreamLeaveOpen()
+    {
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        var offset = 10000;
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", offset));
+        var target = "racecar";
+        var str = $"{prefix}{target}{prefix}";
+        var stream = StringToStream(str);
+        Assert.IsTrue(await compiled.IsMatchAsync(stream));
+        stream.Position = 0;
+        var firstMatch = await compiled.GetFirstMatchAsync(stream);
+        Assert.AreEqual(offset,firstMatch.Index);
+        stream.Position = 0;
+        var matches = await compiled.GetMatchCollectionAsync(stream);
+        Assert.AreEqual(offset, matches.First().Index);
+        Assert.AreEqual(1, matches.Count);
+        stream.Position = 0;
+        Assert.IsTrue(await stream.ContainsAsync(target));
+        stream.Position = 0;
+        Assert.AreEqual(offset, await stream.IndexOfAsync(target));
+        stream.Position = 0;
+    }
+    
+    [TestMethod]
     public async Task TestIndexOfAsync()
     {
         StreamReader content = new StreamReader(StringToStream("123456"));
