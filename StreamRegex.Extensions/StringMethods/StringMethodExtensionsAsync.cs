@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using StreamRegex.Extensions.Core;
 
@@ -22,7 +23,7 @@ public static class StringMethodExtensionsAsync
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamToCheck"/></returns>
     public static async Task<bool> ContainsAsync(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToCheck).ContainsAsync(value, comparisonType, options);
+        return await new StreamReader(streamToCheck, Encoding.Default, true, 4096, true).ContainsAsync(value, comparisonType, options);
     }
 
     /// <summary>
@@ -53,7 +54,7 @@ public static class StringMethodExtensionsAsync
 
     public static async Task<long> IndexOfAsync(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToCheck).IndexOfAsync(value, comparisonType, options);
+        return await new StreamReader(streamToCheck, Encoding.Default, true, 4096, true).IndexOfAsync(value, comparisonType, options);
     }
 
     /// <summary>
