@@ -198,6 +198,7 @@ public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<
     {
         matchCollection.Add(match);
     }
+    return matchCollection;
 }
 
 var collection = reader.GetMatchCollection(YourMethod);
