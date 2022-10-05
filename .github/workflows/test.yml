@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet-version: ['3.1.x', '6.0.x', '7.0.x' ]
+        dotnet-version:
     steps:
     - uses: actions/checkout@v2
       with:
@@ -18,7 +18,10 @@ jobs:
     - name: Setup .NET ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+        dotnet-version: |
+          3.1.x
+          6.0.x
+          7.0.x
         include-prerelease: true
     - name: Nerdbank.GitVersioning
       uses: dotnet/nbgv@v0.4.0
