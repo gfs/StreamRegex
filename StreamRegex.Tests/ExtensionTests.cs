@@ -122,6 +122,19 @@ public class ExtensionTests
     }
     
     [TestMethod]
+    public void TestIndexOfTooSmallOverlapWithReader()
+    {
+        Stream content = StringToStream("123456");
+        StreamReader reader = new StreamReader(content);
+        var smallReadOptions = new SlidingBufferOptions()
+        {
+            BufferSize = 4,
+            OverlapSize = 1
+        };
+        Assert.AreEqual(5, reader.IndexOf("6",StringComparison.InvariantCultureIgnoreCase, smallReadOptions));
+    }
+    
+    [TestMethod]
     public void TestIsMatchFunctionality()
     {
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
