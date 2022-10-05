@@ -155,14 +155,11 @@ using StreamRegex.Extensions.Core;
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 
-string target = "Something";
-
 // Return the index of the target string relative to the chunk. 
 // It will be adjusted to the correct relative position for the Stream automatically.
 SlidingBufferMatch YourMethod(ReadOnlySpan<char> chunk)
 {
-    var idx = contentChunk.IndexOf(target, comparison);
-    if (idx != -1)
+    if (SomeCheckOf(chunk))
     {
         return new SlidingBufferMatch(true, idx, target.Length);
     }
@@ -190,14 +187,29 @@ using StreamRegex.Extensions.Core;
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 // Your arbitrary engine that can generate multiple matches
-YourEngine engine = new MatchingEngine();
-public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
+YourEngineHolder matchingEngine = new YourEngineHolder();
+
+public class YourEngineHolder
 {
-    SlidingBufferMatchCollection<SlidingBufferMatch> matchCollection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
-    matchCollection.AddMatches(engine.MakeMatches(arg));
+    private YourMatchingEngine _internalEngine;
+    
+    public YourEngineHolder()
+    {
+        _internalEngine = new YourMatchingEngine();
+    }
+    
+    public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
+    {
+        SlidingBufferMatchCollection<SlidingBufferMatch> matchCollection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
+        foreach(var match in _internalEngine.MakeMatches(arg))
+        {
+            matchCollection.Add(match);
+        }
+        return matchCollection;
+    }
 }
 
-var collection = reader.GetMatchCollection(YourMethod);
+var collection = reader.GetMatchCollection(matchingEngine.YourMethod);
 ```
 
 ## How it works

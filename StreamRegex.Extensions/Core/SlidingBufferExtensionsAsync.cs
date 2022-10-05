@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace StreamRegex.Extensions.Core;
@@ -19,7 +20,7 @@ public static class SlidingBufferExtensionsAsync
     /// <returns>True if the <paramref name="tomatch"/> matches the <paramref name="action"/>></returns>
     public static async Task<bool> IsMatchAsync(this Stream tomatch, Func<string, bool> action, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(tomatch).IsMatchAsync(action, options);
+        return await new StreamReader(tomatch, Encoding.Default, true, 4096, true).IsMatchAsync(action, options);
     }
 
     /// <summary>
@@ -73,7 +74,7 @@ public static class SlidingBufferExtensionsAsync
     /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
     public static async Task<SlidingBufferMatch> GetFirstMatchAsync(this Stream streamToMatch, Func<string, SlidingBufferMatch> action, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToMatch).GetFirstMatchAsync(action, options);
+        return await new StreamReader(streamToMatch, Encoding.Default, true, 4096, true).GetFirstMatchAsync(action, options);
     }
 
     /// <summary>
@@ -85,7 +86,7 @@ public static class SlidingBufferExtensionsAsync
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamToMatch"/>.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Stream streamToMatch, Func<string, IEnumerable<SlidingBufferMatch>> action, SlidingBufferOptions? options = null)
     {
-        return await new StreamReader(streamToMatch).GetMatchCollectionAsync(action, options);
+        return await new StreamReader(streamToMatch, Encoding.Default, true, 4096, true).GetMatchCollectionAsync(action, options);
     }
 
     /// <summary>
@@ -117,7 +118,7 @@ public static class SlidingBufferExtensionsAsync
             {
                 // Adjust the match position
                 match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
-                collection.AddMatch(match);
+                collection.Add(match);
             }
             offset += numChars;
             // This is an indication there is no more to read.

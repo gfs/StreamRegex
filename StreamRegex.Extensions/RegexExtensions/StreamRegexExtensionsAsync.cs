@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using StreamRegex.Extensions.Core;
-using StreamRegex.Extensions.RegexExtensions;
 
 namespace StreamRegex.Extensions.RegexExtensions;
 
@@ -36,7 +36,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>True if there is at least one match.</returns>
     public static async Task<bool> IsMatchAsync(this IEnumerable<Regex> engines, Stream streamToMatch, StreamRegexOptions? options = null)
     {
-        var reader = new StreamReader(streamToMatch);
+        var reader = new StreamReader(streamToMatch, Encoding.Default, true, 4096, true);
         return await engines.IsMatchAsync(reader, options);
     }
 
@@ -49,7 +49,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>True if there is at least one match.</returns>
     public static async Task<bool> IsMatchAsync(this Regex engine, Stream streamToMatch, StreamRegexOptions? options = null)
     {
-        var reader = new StreamReader(streamToMatch);
+        var reader = new StreamReader(streamToMatch, Encoding.Default, true, 4096, true);
         return await engine.IsMatchAsync(reader, options);
     }
 
@@ -79,7 +79,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this Regex engine, Stream streamToMatch, StreamRegexOptions? options = null)
     {
-        using var reader = new StreamReader(streamToMatch);
+        using var reader = new StreamReader(streamToMatch, Encoding.Default, true, 4096, true);
         return await engine.GetFirstMatchAsync(reader, options);
     }
 
@@ -93,7 +93,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first match, or lack of match.</returns>
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this IEnumerable<Regex> engines, Stream streamToMatch, StreamRegexOptions? options = null)
     {
-        using var reader = new StreamReader(streamToMatch);
+        using var reader = new StreamReader(streamToMatch, Encoding.Default, true, 4096, true);
         return await engines.GetFirstMatchAsync(reader, options);
     }
 
@@ -133,7 +133,7 @@ public static class StreamRegexExtensionsAsync
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This object will be empty if there are no matches.</returns>
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return await new[] { engine }.GetMatchCollectionAsync(new StreamReader(toMatch), options);
+        return await new[] { engine }.GetMatchCollectionAsync(new StreamReader(toMatch, Encoding.Default, true, 4096, true), options);
     }
 
     /// <summary>

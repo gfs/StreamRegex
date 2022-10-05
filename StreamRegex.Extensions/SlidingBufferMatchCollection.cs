@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
-
-/* Unmerged change from project 'StreamRegex.Extensions (netstandard2.1)'
-Before:
-using System.Collections.Generic;
-After:
-using System.Collections.Generic;
-using StreamRegex;
-using StreamRegex.Extensions;
-using StreamRegex.Extensions;
-using StreamRegex.Extensions.Core;
-*/
 using System.Collections.Generic;
 
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// A collection holding unique <see cref="SlidingBufferMatch"/>. The backing collection is threadsafe.
+/// A collection holding unique <see cref="SlidingBufferMatch"/>. The backing collection is thread-safe and deduplicated.
 /// </summary>
 /// <typeparam name="T">The type must inherit from <see cref="SlidingBufferMatch"/></typeparam>
-public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T> where T : SlidingBufferMatch
+public class SlidingBufferMatchCollection<T> : ICollection<T>, IReadOnlyCollection<T> where T : SlidingBufferMatch
 {
-    private readonly ConcurrentQueue<T> _collection = new();
-    private readonly ConcurrentDictionary<T, bool> _deduper = new();
+    private readonly ConcurrentDictionary<T, bool> _backingCollection = new();
 
-    /// <inheritdoc/>
-    public int Count => _collection.Count;
+    /// <summary>
+    /// Remove the provided item.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns>True if the item was removed</returns>
+    public bool Remove(T item)
+    {
+        return _backingCollection.Remove(item, out bool _);
+    }
+
+    /// <summary>
+    /// The number of Matches in the collection
+    /// </summary>
+    public int Count => _backingCollection.Keys.Count;
 
     /// <inheritdoc/>
     public bool IsReadOnly => false;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// This collection is thread-safe.
+    /// </summary>
     public bool IsSynchronized => true;
 
     /// <summary>
@@ -42,51 +44,12 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IRea
     internal SlidingBufferMatchCollection() { }
 
     /// <summary>
-    /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
-    /// </summary>
-    /// <param name="match">The match to add.</param>
-    public void AddMatch(T match)
-    {
-        if (_deduper.TryAdd(match, true))
-        {
-            _collection.Enqueue(match);
-        }
-    }
-
-    /// <summary>
-    /// Add the matches in the provided <paramref name="matchCollection"/> to this collection. The added matches will be deduplicated.
-    /// </summary>
-    /// <param name="matchCollection">The matches to add</param>
-    public void AddMatches(IEnumerable<T> matchCollection)
-    {
-        foreach (var match in matchCollection)
-        {
-            AddMatch(match);
-        }
-    }
-
-    /// <summary>
-    /// Update the index position of the matches in this collection by a specific offset and return the modified collection. Does not make a copy.
-    /// </summary>
-    /// <param name="offset">The offset to apply</param>
-    /// <returns>This <see cref="SlidingBufferMatchCollection{T}"/> with the match indices modified.</returns>
-    public SlidingBufferMatchCollection<T> WithOffset(long offset)
-    {
-        foreach (var slidingBufferMatch in _collection)
-        {
-            slidingBufferMatch.Index += offset;
-        }
-
-        return this;
-    }
-
-    /// <summary>
     /// Gets an <see cref="IEnumerable{SlidingBufferMatch}"/> over the <see cref="SlidingBufferMatch"/> in the collection.
     /// </summary>
     /// <returns>An <see cref="IEnumerable{SlidingBufferMatch}"/> over the <see cref="SlidingBufferMatch"/> in the collection.</returns>
     public IEnumerator<T> GetEnumerator()
     {
-        return _collection.GetEnumerator();
+        return _backingCollection.Keys.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -94,28 +57,24 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IRea
         return GetEnumerator();
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
+    /// </summary>
+    /// <param name="item">The match to add.</param>
     public void Add(T item)
     {
-        if (_deduper.TryAdd(item, true))
-        {
-            _collection.Enqueue(item);
-        }
+        _backingCollection.TryAdd(item, true);
     }
 
     /// <inheritdoc/>
     public void Clear()
     {
-        _collection.Clear();
-        _deduper.Clear();
+        _backingCollection.Clear();
     }
 
     /// <inheritdoc/>
-    public bool Contains(T item) => _deduper.ContainsKey(item);
+    public bool Contains(T item) => _backingCollection.ContainsKey(item);
 
     /// <inheritdoc/>
-    public void CopyTo(T[] array, int arrayIndex) => _collection.CopyTo(array, arrayIndex);
-
-    /// <inheritdoc/>
-    public void CopyTo(Array array, int index) => _collection.CopyTo((T[])array, index);
+    public void CopyTo(T[] array, int arrayIndex) => _backingCollection.Keys.CopyTo(array, arrayIndex);
 }

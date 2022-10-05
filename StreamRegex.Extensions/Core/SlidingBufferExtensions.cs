@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace StreamRegex.Extensions.Core;
 
@@ -25,7 +25,7 @@ public static class SlidingBufferExtensions
     /// <returns>True if the <paramref name="streamToMatch"/> matches the <paramref name="isMatchDelegate"/></returns>
     public static bool IsMatch(this Stream streamToMatch, IsMatchDelegate isMatchDelegate, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(streamToMatch).IsMatch(isMatchDelegate, options);
+        return new StreamReader(streamToMatch, Encoding.Default, true, 4096, true).IsMatch(isMatchDelegate, options);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public static class SlidingBufferExtensions
     /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
     public static SlidingBufferMatch GetFirstMatch(this Stream streamToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(streamToMatch).GetFirstMatch(getFirstMatchDelegate, options);
+        return new StreamReader(streamToMatch, Encoding.Default, true, 4096, true).GetFirstMatch(getFirstMatchDelegate, options);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public static class SlidingBufferExtensions
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamToMatch"/>.</returns>
     public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Stream streamToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(streamToMatch).GetMatchCollection(getMatchCollectionDelegate, options);
+        return new StreamReader(streamToMatch, Encoding.Default, true, 4096, true).GetMatchCollection(getMatchCollectionDelegate, options);
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public static class SlidingBufferExtensions
             {
                 // Adjust the match position
                 match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
-                collection.AddMatch(match);
+                collection.Add(match);
             }
             offset += numChars;
             // This is an indication there is no more to read.

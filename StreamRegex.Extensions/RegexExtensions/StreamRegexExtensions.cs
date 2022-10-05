@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using StreamRegex.Extensions.Core;
-using StreamRegex.Extensions.RegexExtensions;
 
 namespace StreamRegex.Extensions.RegexExtensions;
 
@@ -114,7 +113,7 @@ public static class StreamRegexExtensions
     /// <returns>A <see cref="SlidingBufferMatchCollection{StreamRegexMatch}"/> object representing all matches. This collection will be empty if there are no matches.</returns>
     public static SlidingBufferMatchCollection<StreamRegexMatch> GetMatchCollection(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        return new[] { engine }.GetMatchCollection(new StreamReader(toMatch), options);
+        return new[] { engine }.GetMatchCollection(new StreamReader(toMatch, Encoding.Default, true, 4096, true), options);
     }
 
     /// <summary>
@@ -145,7 +144,7 @@ public static class StreamRegexExtensions
         {
             if (match is StreamRegexMatch srvm)
             {
-                regexMatches.AddMatch(srvm);
+                regexMatches.Add(srvm);
             }
         }
         return regexMatches;
