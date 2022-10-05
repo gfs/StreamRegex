@@ -145,7 +145,7 @@ public static class StreamRegexExtensions
         {
             if (match is StreamRegexMatch srvm)
             {
-                regexMatches.AddMatch(srvm);
+                regexMatches.Add(srvm);
             }
         }
         return regexMatches;

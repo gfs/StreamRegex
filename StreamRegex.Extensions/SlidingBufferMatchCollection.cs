@@ -40,19 +40,7 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IRea
     public object SyncRoot => throw new NotSupportedException();
 
     internal SlidingBufferMatchCollection() { }
-
-    /// <summary>
-    /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
-    /// </summary>
-    /// <param name="match">The match to add.</param>
-    public void AddMatch(T match)
-    {
-        if (_deduper.TryAdd(match, true))
-        {
-            _collection.Enqueue(match);
-        }
-    }
-
+    
     /// <summary>
     /// Add the matches in the provided <paramref name="matchCollection"/> to this collection. The added matches will be deduplicated.
     /// </summary>
@@ -61,7 +49,7 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IRea
     {
         foreach (var match in matchCollection)
         {
-            AddMatch(match);
+            Add(match);
         }
     }
 
@@ -94,7 +82,10 @@ public class SlidingBufferMatchCollection<T> : IEnumerable<T>, ICollection, IRea
         return GetEnumerator();
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Add a <see cref="SlidingBufferMatch"/> to the collection.  If the same match has already been added no-op.
+    /// </summary>
+    /// <param name="item">The match to add.</param>
     public void Add(T item)
     {
         if (_deduper.TryAdd(item, true))
