@@ -79,7 +79,7 @@ public static class StringMethodExtensionsAsync
             var idx = comparisonType is { } notNullComparison ? contentChunk.IndexOf(value, notNullComparison) : contentChunk.IndexOf(value);
             if (idx != -1)
             {
-                return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + value.Length)]);
+                return new SlidingBufferMatch(true, idx, value.Length, contentChunk[idx..(idx + value.Length)]);
             }
 
             return new SlidingBufferMatch();

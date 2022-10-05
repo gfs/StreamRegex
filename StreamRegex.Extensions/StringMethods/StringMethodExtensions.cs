@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using StreamRegex.Extensions.Core;
-using StreamRegex.Extensions.StringMethods;
 
 namespace StreamRegex.Extensions.StringMethods;
 
@@ -10,7 +10,6 @@ namespace StreamRegex.Extensions.StringMethods;
 /// </summary>
 public static class StringMethodExtensions
 {
-
     /// <summary>
     /// Check if a given string is contained in the given <see cref="Stream"/>.
     /// Using a <see cref="System.Text.RegularExpressions.Regex"/> may be faster.
@@ -20,9 +19,9 @@ public static class StringMethodExtensions
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamToCheck"/></returns>
-    public static bool Contains(this Stream streamToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static bool Contains(this Stream streamToCheck, string value, StringComparison comparisonType = StringComparison.Ordinal, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(streamToCheck).Contains(value, comparisonType, options);
+        return new StreamReader(streamToCheck, Encoding.Default, true, 4096, true).Contains(value, comparisonType, options);
     }
 
     /// <summary>
@@ -34,11 +33,10 @@ public static class StringMethodExtensions
     /// <param name="comparisonType"><see cref="StringComparison"/> type to use</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> specifying the sizes of the buffer and the overlap.</param>
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamReaderToCheck"/></returns>
-    public static bool Contains(this StreamReader streamReaderToCheck, string value, StringComparison? comparisonType = null, SlidingBufferOptions? options = null)
+    public static bool Contains(this StreamReader streamReaderToCheck, string value, StringComparison comparisonType = StringComparison.Ordinal, SlidingBufferOptions? options = null)
     {
-        return comparisonType is { } notNullComparison ?
-            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, notNullComparison), options) :
-            streamReaderToCheck.IsMatch(contentChunk => contentChunk.Contains(value, StringComparison.Ordinal), options);
+        var matcher = new StringMatcher(value, comparisonType);
+        return streamReaderToCheck.IsMatch(matcher.IsMatchDelegate, options);
     }
 
     /// <summary>
@@ -52,7 +50,7 @@ public static class StringMethodExtensions
     /// <returns>The index offset relative to the position when <paramref name="streamToCheck"/> was provided or -1 if not found.</returns>
     public static long IndexOf(this Stream streamToCheck, string value, StringComparison comparisonType = StringComparison.CurrentCulture, SlidingBufferOptions? options = null)
     {
-        return new StreamReader(streamToCheck).IndexOf(value, comparisonType, options);
+        return new StreamReader(streamToCheck, Encoding.Default, true, 4096, true).IndexOf(value, comparisonType, options);
     }
 
     /// <summary>
@@ -72,16 +70,8 @@ public static class StringMethodExtensions
         {
             opts.OverlapSize = value.Length;
         }
-        var match = streamReaderToCheck.GetFirstMatch(contentChunk =>
-        {
-            var idx = contentChunk.IndexOf(value, comparisonType);
-            if (idx != -1)
-            {
-                return new SlidingBufferValueMatch(true, idx, idx + value.Length);
-            }
-
-            return new SlidingBufferValueMatch();
-        }, options);
+        var matcher = new StringMatcher(value, comparisonType);
+        var match = streamReaderToCheck.GetFirstMatch(matcher.GetFirstMatchDelegate, options);
         return match.Index;
     }
 }

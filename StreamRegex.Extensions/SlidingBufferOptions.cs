@@ -17,4 +17,9 @@ public class SlidingBufferOptions
     /// Increasing this parameter may impact performance as it increases the number of characters parsed twice.
     /// </summary>
     public int OverlapSize { get; set; } = 256;
+
+    /// <summary>
+    /// Options to be passed to Delegates
+    /// </summary>
+    public DelegateOptions DelegateOptions { get; set; } = new DelegateOptions();
 }
