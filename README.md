@@ -194,7 +194,10 @@ YourEngine engine = new MatchingEngine();
 public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
 {
     SlidingBufferMatchCollection<SlidingBufferMatch> matchCollection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
-    matchCollection.AddMatches(engine.MakeMatches(arg));
+    foreach(var match in engine.MakeMatches(arg))
+    {
+        matchCollection.Add(match);
+    }
 }
 
 var collection = reader.GetMatchCollection(YourMethod);
