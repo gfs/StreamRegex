@@ -13,7 +13,8 @@ public static class SlidingBufferExtensions
     /// Delegate for IsMatch methods.
     /// </summary>
     /// <param name="chunk">The section of the Stream currently being checked</param>
-    public delegate bool IsMatchDelegate(ReadOnlySpan<char> chunk);
+    /// <param name="delegateOptions">Options for delegate operation</param>
+    public delegate bool IsMatchDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions);
 
     /// <summary>
     /// Check if a <see cref="Stream"/> matches the provided <paramref name="isMatchDelegate"/>
@@ -48,7 +49,7 @@ public static class SlidingBufferExtensions
             // The number of characters to read out of the builder
             // Characters after this are not valid for this read
             var numValidCharacters = offset > 0 ? numChars + opts.OverlapSize : numChars;
-            if (isMatchDelegate.Invoke(buffer[..numValidCharacters]))
+            if (isMatchDelegate.Invoke(buffer[..numValidCharacters], opts.DelegateOptions))
             {
                 return true;
             }
@@ -74,7 +75,8 @@ public static class SlidingBufferExtensions
     /// Delegate for GetFirstMatch methods.
     /// </summary>
     /// <param name="chunk">The section of the Stream currently being checked</param>
-    public delegate SlidingBufferValueMatch GetFirstMatchDelegate(ReadOnlySpan<char> chunk);
+    /// <param name="delegateOptions">Options for delegate operation</param>
+    public delegate SlidingBufferMatch GetFirstMatchDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions);
 
     /// <summary>
     /// Get the first match for a <see cref="Stream"/> from an Function.
@@ -83,7 +85,7 @@ public static class SlidingBufferExtensions
     /// <param name="getFirstMatchDelegate">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
-    public static SlidingBufferValueMatch GetFirstMatch(this Stream streamToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
+    public static SlidingBufferMatch GetFirstMatch(this Stream streamToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
     {
         return new StreamReader(streamToMatch).GetFirstMatch(getFirstMatchDelegate, options);
     }
@@ -95,7 +97,7 @@ public static class SlidingBufferExtensions
     /// <param name="getFirstMatchDelegate">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatch"/> object representing the match state of the first match.</returns>
-    public static SlidingBufferValueMatch GetFirstMatch(this StreamReader streamReaderToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
+    public static SlidingBufferMatch GetFirstMatch(this StreamReader streamReaderToMatch, GetFirstMatchDelegate getFirstMatchDelegate, SlidingBufferOptions? options = null)
     {
         var opts = options ?? new();
         var bufferSize = opts.BufferSize < opts.OverlapSize * 2 ? opts.OverlapSize * 2 : opts.BufferSize;
@@ -110,7 +112,7 @@ public static class SlidingBufferExtensions
             // The number of characters to read out of the builder
             // Characters after this are not valid for this read
             var numValidCharacters = offset > 0 ? numChars + opts.OverlapSize : numChars;
-            var match = getFirstMatchDelegate.Invoke(buffer[..numValidCharacters]);
+            var match = getFirstMatchDelegate.Invoke(buffer[..numValidCharacters], opts.DelegateOptions);
             if (match.Success)
             {
                 match.Index += offset > 0 ? offset - opts.OverlapSize : 0;
@@ -131,14 +133,15 @@ public static class SlidingBufferExtensions
             numChars = streamReaderToMatch.Read(buffer[opts.OverlapSize..]);
         }
 
-        return new SlidingBufferValueMatch();
+        return new SlidingBufferMatch();
     }
 
     /// <summary>
     /// Delegate for GetMatchCollection methods.
     /// </summary>
     /// <param name="chunk">The section of the Stream currently being checked</param>
-    public delegate SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollectionDelegate(ReadOnlySpan<char> chunk);
+    /// <param name="delegateOptions">Options for delegate operation</param>
+    public delegate SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollectionDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions);
 
     /// <summary>
     /// Get the all matches for a <see cref="Stream"/> from an Function.
@@ -147,7 +150,7 @@ public static class SlidingBufferExtensions
     /// <param name="getMatchCollectionDelegate">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamToMatch"/>.</returns>
-    public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this Stream streamToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
+    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this Stream streamToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
     {
         return new StreamReader(streamToMatch).GetMatchCollection(getMatchCollectionDelegate, options);
     }
@@ -159,9 +162,9 @@ public static class SlidingBufferExtensions
     /// <param name="getMatchCollectionDelegate">The Function to run</param>
     /// <param name="options">The <see cref="SlidingBufferOptions"/> to use</param>
     /// <returns>A <see cref="SlidingBufferMatchCollection{SlidingBufferMatch}"/> object with all the matches for the <paramref name="streamReaderToMatch"/>.</returns>
-    public static SlidingBufferValueMatchCollection<SlidingBufferValueMatch> GetMatchCollection(this StreamReader streamReaderToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
+    public static SlidingBufferMatchCollection<SlidingBufferMatch> GetMatchCollection(this StreamReader streamReaderToMatch, GetMatchCollectionDelegate getMatchCollectionDelegate, SlidingBufferOptions? options = null)
     {
-        SlidingBufferValueMatchCollection<SlidingBufferValueMatch> collection = new();
+        SlidingBufferMatchCollection<SlidingBufferMatch> collection = new();
 
         var opts = options ?? new();
 
@@ -176,8 +179,8 @@ public static class SlidingBufferExtensions
             // The number of characters to read out of the builder
             // Characters after this are not valid for this read
             var numValidCharacters = offset > 0 ? numChars + opts.OverlapSize : numChars;
-            var matches = getMatchCollectionDelegate.Invoke(buffer[..numValidCharacters]);
-            foreach (SlidingBufferValueMatch match in matches)
+            var matches = getMatchCollectionDelegate.Invoke(buffer[..numValidCharacters], opts.DelegateOptions);
+            foreach (SlidingBufferMatch match in matches)
             {
                 // Adjust the match position
                 match.Index += offset > 0 ? offset - opts.OverlapSize : 0;

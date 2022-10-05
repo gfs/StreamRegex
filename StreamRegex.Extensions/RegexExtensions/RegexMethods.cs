@@ -30,7 +30,7 @@ internal class RegexMethods
             MatchCollection matches = engine.Matches(arg);
             foreach (Match match in matches)
             {
-                yield return new StreamRegexMatch(engine, true, match.Index, match.Value);
+                yield return new StreamRegexMatch(engine, true, match.Index, match.Length, match.Value);
             }
         }
     }
@@ -47,7 +47,7 @@ internal class RegexMethods
             var match = engine.Match(arg);
             if (match.Success)
             {
-                return new StreamRegexMatch(engine, true, match.Index, match.Value);
+                return new StreamRegexMatch(engine, true, match.Index, match.Length, match.Value);
             }
         }
 
@@ -73,34 +73,34 @@ internal class RegexMethods
         return false;
     }
 
-    internal SlidingBufferValueMatchCollection<SlidingBufferValueMatch> RegexGetMatchCollectionDelegate(ReadOnlySpan<char> chunk)
+    internal SlidingBufferMatchCollection<SlidingBufferMatch> RegexGetMatchCollectionDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions)
     {
 #if NET7_0_OR_GREATER
-        SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchList = new();
+        SlidingBufferMatchCollection<SlidingBufferMatch> matchList = new();
         foreach (var engine in _engines)
         {
             Regex.ValueMatchEnumerator matches = engine.EnumerateMatches(chunk);
             foreach (ValueMatch match in matches)
             {
-                matchList.Add(new StreamRegexValueMatch(engine, true, match.Index, match.Length));
+                matchList.Add(new StreamRegexMatch(engine, true, match.Index, match.Length, delegateOptions.CaptureValues ? chunk[match.Index..(match.Index + match.Length)].ToString() : null));
             }
         }
         return matchList;
 #else
-        SlidingBufferValueMatchCollection<SlidingBufferValueMatch> matchList = new();
+        SlidingBufferMatchCollection<SlidingBufferMatch> matchList = new();
         foreach (var engine in _engines)
         {
             MatchCollection matches = engine.Matches(chunk.ToString());
             foreach (Match match in matches)
             {
-                matchList.Add(new StreamRegexValueMatch(engine, true, match.Index, match.Length));
+                matchList.Add(new StreamRegexMatch(engine, true, match.Index, match.Length, delegateOptions.CaptureValues ? chunk[match.Index..(match.Index + match.Length)].ToString() : null));
             }
         }
         return matchList;
 #endif
     }
 
-    internal bool RegexIsMatchDelegate(ReadOnlySpan<char> chunk)
+    internal bool RegexIsMatchDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions)
     {
         foreach (var engine in _engines)
         {
@@ -117,7 +117,7 @@ internal class RegexMethods
         return false;
     }
 
-    internal SlidingBufferValueMatch RegexGetFirstMatchDelegate(ReadOnlySpan<char> chunk)
+    internal SlidingBufferMatch RegexGetFirstMatchDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions)
     {
 #if NET7_0_OR_GREATER
         foreach (var engine in _engines)
@@ -125,22 +125,22 @@ internal class RegexMethods
             Regex.ValueMatchEnumerator matches = engine.EnumerateMatches(chunk);
             foreach (var match in matches)
             {
-                return new StreamRegexValueMatch(engine, true, match.Index, match.Length);
+                return new StreamRegexMatch(engine, true, match.Index, match.Length, delegateOptions.CaptureValues ? chunk[match.Index..(match.Index + match.Length)].ToString() : null);
             }
         }
 
-        return new StreamRegexValueMatch();
+        return new StreamRegexMatch();
 #else
         foreach (var engine in _engines)
         {
             MatchCollection matches = engine.Matches(chunk.ToString());
             foreach (Match match in matches)
             {
-                return new StreamRegexValueMatch(engine, true, match.Index, match.Length);
+                return new StreamRegexMatch(engine, true, match.Index, match.Length, delegateOptions.CaptureValues ? chunk[match.Index..(match.Index + match.Length)].ToString() : null);
             }
         }
 
-        return new StreamRegexValueMatch();
+        return new StreamRegexMatch();
 #endif
     }
 }
