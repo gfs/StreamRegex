@@ -102,6 +102,23 @@ public class AsyncExtensionTests
     }
     
     [TestMethod]
+    public async Task TestIndexOfAsyncTooSmallOverlap()
+    {
+        StreamReader content = new StreamReader(StringToStream("123456"));
+        Assert.AreEqual(2, content.IndexOf("3", StringComparison.InvariantCultureIgnoreCase));
+        // This won't be found. The previous read read to the end of the buffer
+        Assert.AreEqual(-1, content.IndexOf("6",StringComparison.InvariantCultureIgnoreCase));
+        // If we reset the stream we find it properly
+        content.BaseStream.Position = 0;
+        var smallReadOptions = new SlidingBufferOptions()
+        {
+            BufferSize = 4,
+            OverlapSize = 1
+        };
+        Assert.AreEqual(5, await content.IndexOfAsync("6",StringComparison.InvariantCultureIgnoreCase, smallReadOptions));
+    }
+    
+    [TestMethod]
     public async Task TestIsMatchFunctionalityAsync()
     {
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);

@@ -105,6 +105,23 @@ public class ExtensionTests
     }
     
     [TestMethod]
+    public void TestIndexOfTooSmallOverlap()
+    {
+        Stream content = StringToStream("123456");
+        Assert.AreEqual(2, content.IndexOf("3", StringComparison.InvariantCultureIgnoreCase));
+        // This won't be found. The previous read read to the end of the buffer
+        Assert.AreEqual(-1, content.IndexOf("6",StringComparison.InvariantCultureIgnoreCase));
+        // If we reset the stream we find it properly
+        content.Position = 0;
+        var smallReadOptions = new SlidingBufferOptions()
+        {
+            BufferSize = 4,
+            OverlapSize = 1
+        };
+        Assert.AreEqual(5, content.IndexOf("6",StringComparison.InvariantCultureIgnoreCase, smallReadOptions));
+    }
+    
+    [TestMethod]
     public void TestIsMatchFunctionality()
     {
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
@@ -127,6 +144,23 @@ public class ExtensionTests
         Assert.IsTrue(res.Success);
         Assert.AreEqual(offset, res.Index);
         Assert.AreEqual(targetMatch.Length, res.Length);
+        Assert.AreEqual(null, res.Value);
+    }
+    
+    [TestMethod]
+    public void TestMatchFunctionalityWithCapture()
+    {
+        var targetMatch = "racecar";
+        var offset = 10000;
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", offset));
+        var str = $"{prefix}{targetMatch}{prefix}";
+        var stream = StringToStream(str);
+        var res = compiled.GetFirstMatch(stream, new StreamRegexOptions(){DelegateOptions = new DelegateOptions(){CaptureValues = true}});
+        Assert.IsTrue(res.Success);
+        Assert.AreEqual(offset, res.Index);
+        Assert.AreEqual(targetMatch.Length, res.Length);
+        Assert.AreEqual(targetMatch, res.Value);
     }
 
     [TestMethod]
