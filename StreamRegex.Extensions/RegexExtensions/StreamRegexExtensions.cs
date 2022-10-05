@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using StreamRegex.Extensions.Core;
-using StreamRegex.Extensions.RegexExtensions;
 
 namespace StreamRegex.Extensions.RegexExtensions;
 
