@@ -1,10 +1,18 @@
-﻿using BenchmarkDotNet.Running;
+﻿using System.Diagnostics.CodeAnalysis;
+using BenchmarkDotNet.Running;
 using StreamRegex.Benchmarks;
 using StreamRegex.Lib;
 using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
 
-var summary = BenchmarkRunner.Run<PerformanceVsStandard>();
+[ExcludeFromCodeCoverage]
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var summary = BenchmarkRunner.Run<PerformanceVsStandard>();
+    }    
+}
 // NFATest();
 //void ExtensionsTest()
 //{

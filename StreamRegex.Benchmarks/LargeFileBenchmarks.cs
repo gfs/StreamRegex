@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Extensions.RegexExtensions;
@@ -42,6 +43,7 @@ public class LargeFileBenchmarks
     
     [BenchmarkCategory("Regex")]
     [Benchmark]
+    [ExcludeFromCodeCoverage]
     public void CompiledRegex()
     {
         var content = new StreamReader(_stream).ReadToEnd();
