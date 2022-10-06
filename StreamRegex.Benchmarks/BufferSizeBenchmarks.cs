@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using BenchmarkDotNet.Attributes;
 using StreamRegex.Extensions.RegexExtensions;
 using StreamRegex.Extensions.StringMethods;
@@ -7,6 +8,7 @@ using StreamRegex.Lib.NFA;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
+[ExcludeFromCodeCoverage]
 public class BufferSizeBenchmarks
 {
     private readonly Regex _compiled;

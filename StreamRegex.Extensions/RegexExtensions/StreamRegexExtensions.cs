@@ -70,8 +70,7 @@ public static class StreamRegexExtensions
     /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
     public static StreamRegexMatch GetFirstMatch(this Regex engine, Stream toMatch, StreamRegexOptions? options = null)
     {
-        using var reader = new StreamReader(toMatch, Encoding.UTF8, true, 4096, true);
-        return engine.GetFirstMatch(reader, options);
+        return new[] { engine }.GetFirstMatch(toMatch, options);
     }
 
     /// <summary>
@@ -86,6 +85,24 @@ public static class StreamRegexExtensions
         return new[] { engine }.GetFirstMatch(toMatch, options);
     }
 
+    /// <summary>
+    /// Find if a <see cref="Stream"/> matches any of a number of <see cref="Regex"/>.
+    /// </summary>
+    /// <param name="engines">The <see cref="IEnumerable{Regex}"/> to check against the Stream</param>
+    /// <param name="toMatch">The <see cref="Stream"/> to match</param>
+    /// <param name="options">The <see cref="StreamRegexOptions"/> to use</param>
+    /// <returns>A <see cref="StreamRegexMatch"/> object representing the first, or lack of, Match.</returns>
+    public static StreamRegexMatch GetFirstMatch(this IEnumerable<Regex> engines, Stream toMatch, StreamRegexOptions? options = null)
+    {
+        RegexMethods methods = new RegexMethods(engines);
+        if (toMatch.GetFirstMatch(methods.RegexGetFirstMatchDelegate, options) is StreamRegexMatch srvm)
+        {
+            return srvm;
+        }
+
+        return new StreamRegexMatch();
+    }
+    
     /// <summary>
     /// Find if a <see cref="StreamReader"/> matches any of a number of <see cref="Regex"/>.
     /// </summary>

@@ -41,7 +41,7 @@ public class SlidingBufferMatchCollection<T> : ICollection<T>, IReadOnlyCollecti
     /// </summary>
     public object SyncRoot => throw new NotSupportedException();
 
-    internal SlidingBufferMatchCollection() { }
+    public SlidingBufferMatchCollection() { }
 
     /// <summary>
     /// Gets an <see cref="IEnumerable{SlidingBufferMatch}"/> over the <see cref="SlidingBufferMatch"/> in the collection.

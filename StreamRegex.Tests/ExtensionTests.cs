@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 using StreamRegex.Extensions.RegexExtensions;
 using StreamRegex.Extensions.StringMethods;
 
@@ -27,6 +28,40 @@ public class ExtensionTests
         Assert.IsTrue(compiled.IsMatch(StringToStream(str)));
     }
     
+    [TestMethod]
+    public void MatchCollectionWithStreamDirectCallDelegate()
+    {
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        var offset = 10000;
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", offset));
+        var target = "racecar";
+        var str = $"{prefix}{target}{prefix}";
+        var stream = StringToStream(str);
+        Assert.IsTrue(compiled.IsMatch(stream));
+        stream.Position = 0;
+        var firstMatch = compiled.GetFirstMatch(stream);
+        Assert.AreEqual(offset,firstMatch.Index);
+        stream.Position = 0;
+        var matches = stream.GetMatchCollection(((chunk, options) =>
+        {
+            SlidingBufferMatchCollection<SlidingBufferMatch> collection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
+            var idx = chunk.IndexOf(target, StringComparison.Ordinal);
+            if (idx != -1)
+            {
+                collection.Add(new SlidingBufferMatch(true, idx, target.Length));
+            }
+
+            return collection;
+        }));
+        Assert.AreEqual(offset, matches.First().Index);
+        Assert.AreEqual(1, matches.Count);
+        stream.Position = 0;
+        Assert.IsTrue(stream.Contains(target));
+        stream.Position = 0;
+        Assert.AreEqual(offset, stream.IndexOf(target));
+        stream.Position = 0;
+    }
+
     [TestMethod]
     public void StreamLeaveOpen()
     {
@@ -131,11 +166,21 @@ public class ExtensionTests
             BufferSize = 4,
             OverlapSize = 1
         };
-        Assert.AreEqual(5, reader.IndexOf("6",StringComparison.InvariantCultureIgnoreCase, smallReadOptions));
+        Assert.AreEqual(4, reader.IndexOf("56",StringComparison.InvariantCultureIgnoreCase, smallReadOptions));
     }
     
     [TestMethod]
     public void TestIsMatchFunctionality()
+    {
+        var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
+        var prefix = string.Join(string.Empty,Enumerable.Repeat("z", 10000));
+        var str = $"{prefix}racecar{prefix}";
+        var res = compiled.IsMatch(StringToStream(str));
+        Assert.IsTrue(res);
+    }
+    
+    [TestMethod]
+    public void TestIsMatchFunctionalityToSmallOverlap()
     {
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
         var prefix = string.Join(string.Empty,Enumerable.Repeat("z", 10000));
