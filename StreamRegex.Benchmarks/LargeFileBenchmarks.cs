@@ -47,19 +47,11 @@ public class LargeFileBenchmarks
     public void CompiledRegex()
     {
         var content = new StreamReader(_stream).ReadToEnd();
-#if NET7_0_OR_GREATER
-        var matches = _compiled.EnumerateMatches(content.AsSpan());
-        if (!matches.MoveNext() || matches.Current.Index != _paddingLength)
-        {
-            throw new Exception($"The regex didn't match {Pattern}.");
-        }
-#else
         var match = _compiled.Match(content);
         if (!match.Success || match.Index != _paddingLength)
         {
-            throw new Exception($"The regex didn't match {Pattern}.");
+            throw new Exception($"The regex didn't match {match.Index}.");
         }
-#endif
     }
     
     [BenchmarkCategory("Regex")]
