@@ -16,73 +16,81 @@ public class PerformanceVsStandard
     //private Stream _stream = new MemoryStream();
     private Dictionary<(int, int, int), Stream> _streams = new();
     // Does not contain e so cannot match racecar
-    string chars = "abcdfghijklmnopqrstuvwxyz123456789";
-    Random random = new Random();
+    string _chars = "abcdfghijklmnopqrstuvwxyz123456789";
+    Random _random = new Random();
 
     [IterationSetup]
     public void IterationSetup()
     {
-        if (!_streams.ContainsKey((numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)))
+        if (!_streams.ContainsKey((NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)))
         {
-            var _stream = new MemoryStream();
-            var streamWriter = new StreamWriter(_stream, leaveOpen: true);
-            for (int i = 0; i < numberPaddingSegmentsBefore; i++)
+            var stream = new MemoryStream();
+            var streamWriter = new StreamWriter(stream, leaveOpen: true);
+            for (int i = 0; i < NumberPaddingSegmentsBefore; i++)
             {
-                streamWriter.Write(getRandomString(paddingSegmentLength));
+                streamWriter.Write(GetRandomString(PaddingSegmentLength));
             }
 
             streamWriter.Write(Pattern);
 
-            for (int i = 0; i < numberPaddingSegmentsAfter; i++)
+            for (int i = 0; i < NumberPaddingSegmentsAfter; i++)
             {
-                streamWriter.Write(getRandomString(paddingSegmentLength));
+                streamWriter.Write(GetRandomString(PaddingSegmentLength));
             }
             streamWriter.Close();
-            _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)] = _stream;
+            _streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)] = stream;
         }
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+        _streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)].Position = 0;
     }
 
-    private string getRandomString(int numCharacters)
+    private string GetRandomString(int numCharacters)
     {
-        return new string(Enumerable.Repeat(0, numCharacters).Select(_ => chars[random.Next(chars.Length)]).ToArray());
+        return new string(Enumerable.Repeat(0, numCharacters).Select(_ => _chars[_random.Next(_chars.Length)]).ToArray());
     }
     
-    const int zeroPadding = 0;
+    const int ZeroPadding = 0;
 
     // 100 MB
-    const int midPadding = 1000 * 100;
+    const int MidPadding = 1000 * 100;
 
     // 200 MB
-    const int longPadding = 1000 * 200;
+    const int LongPadding = 1000 * 200;
 
 
     [Params(1000)]
-    public int paddingSegmentLength { get; set; }
-    [Params(zeroPadding, midPadding, longPadding)]
-    public int numberPaddingSegmentsBefore { get; set; }
-    [Params(zeroPadding, midPadding, longPadding)]
-    public int numberPaddingSegmentsAfter { get; set; }
+    public int PaddingSegmentLength { get; set; }
+    [Params(ZeroPadding, MidPadding, LongPadding)]
+    public int NumberPaddingSegmentsBefore { get; set; }
+    [Params(ZeroPadding, MidPadding, LongPadding)]
+    public int NumberPaddingSegmentsAfter { get; set; }
 
 
     [BenchmarkCategory("Regex")]
     [Benchmark(Baseline = true)]
     public void CompiledRegex()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
+        _streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)].Position = 0;
+        var content = new StreamReader(_streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)], leaveOpen: true).ReadToEnd();
+#if NET7_0_OR_GREATER
+        var matches = _compiled.EnumerateMatches(content.AsSpan());
+        if (!matches.MoveNext())
+        {
+            throw new Exception($"The regex didn't match {Pattern}.");
+        }
+#else
         if (!_compiled.IsMatch(content))
         {
             throw new Exception($"The regex didn't match.");
         }
+#endif
     }
     
     [BenchmarkCategory("Regex")]
     [Benchmark]
     public void RegexExtension()
     {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true);
+        _streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)].Position = 0;
+        var content = new StreamReader(_streams[(NumberPaddingSegmentsBefore, NumberPaddingSegmentsAfter, PaddingSegmentLength)], leaveOpen: true);
         if (!_compiled.IsMatch(content))
         {
             throw new Exception($"The regex didn't match.");
