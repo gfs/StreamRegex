@@ -66,7 +66,7 @@ else
 ```
 
 ### Stream
-You can also call the methods on a Stream directly. If you do so, a StreamReader will be created to read it.
+You can also call the methods on a Stream directly. If you do so, a StreamReader will be created to read it with `leaveOpen = true`, reading from the current position of the Stream. The Stream will not have its position reset after reading, and will not be closed or disposed.
 ```c#
 // Include this for the extension methods
 using StreamRegex.Extensions.RegexExtensions;
