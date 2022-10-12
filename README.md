@@ -8,7 +8,7 @@ Auto-Generated API Documentation is hosted on [GitHub Pages](https://gfs.github.
 
 ## Motivation
 
-Memory allocation is an expensive operation - in many cases it may be consuming more time than any other operation in your program. It may be the case that you want to check many arbitrarily large files without reading every file out into a string - an allocation expensive operation.  Using the extension methods here you can check your Stream or StreamReader directly with minimal allocations. For a 400MB file, on .NET 7 allocations can be reduced from 1.5GB to ~4KB - see [Benchmarks](#benchmarks)
+Memory allocation is an expensive operation - in many cases it may be consuming more time than any other operation in your program. It may be the case that you want to check many arbitrarily large files without reading every file out into a string - an allocation expensive operation.  Using the extension methods here you can check your Stream or StreamReader directly with minimal allocations. For a 400MB file, on .NET 7 allocations can be reduced from 1.5GB to ~4MB - see [Benchmarks](#benchmarks)
 
 ## To use Regex
 Here is some simple sample code to get started
