@@ -27,15 +27,22 @@ public static class IndexingExtensions
     }
 
     /// <summary>
-    /// Gets a Span of chars from the StreamReader
+    /// Gets a Span of chars from the specified range in the <paramref name="target"/> <see cref="StreamReader"/>
+    ///
+    /// If <paramref cref="end"/> is longer than the actual length of <see cref="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
+    /// If <paramref name="start"/> is Greater than <paramref cref="end"/> the resulting Span will be 0 length.
     /// </summary>
-    /// <param name="target"></param>
-    /// <param name="start"></param>
-    /// <param name="end"></param>
-    /// <returns></returns>
+    /// <param name="target">The StreamReader to select from</param>
+    /// <param name="start">The 0 indexed start to read from</param>
+    /// <param name="end">The 0 indexed end to read to</param>
+    /// <returns>A span with the actual characters from the range.</returns>
     public static Span<char> GetRange(this StreamReader target, long start, long end)
     {
-        Span<char> theSpan = new Span<char>(new char[start-end]);
+        if (start >= end)
+        {
+            return new Span<char>(Array.Empty<char>());
+        }
+        Span<char> theSpan = new Span<char>(new char[end-start]);
         if (target.BaseStream.CanSeek)
         {
             target.BaseStream.Position = start;
@@ -86,9 +93,23 @@ public static class IndexingExtensions
         return target.GetRange(match.Index, match.Index + match.Length);
     }
 
+    /// <summary>
+    /// Gets a Span of bytes from the specified range in the <paramref name="target"/> <see cref="Stream"/>
+    ///
+    /// If <paramref cref="end"/> is longer than the actual length of <see cref="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
+    /// If <paramref name="start"/> is Greater than <paramref cref="end"/> the resulting Span will be 0 length.
+    /// </summary>
+    /// <param name="target">The Stream to select from</param>
+    /// <param name="start">The 0 indexed start to read from</param>
+    /// <param name="end">The 0 indexed end to read to</param>
+    /// <returns>A span with the actual bytes from the range.</returns>
     public static Span<byte> GetRange(this Stream target, long start, long end)
     {
-        Span<byte> theSpan = new Span<byte>(new byte[start-end]);
+        if (start >= end)
+        {
+            return new Span<byte>(Array.Empty<byte>());
+        }
+        Span<byte> theSpan = new Span<byte>(new byte[end-start]);
         if (target.CanSeek)
         {
             target.Position = start;
