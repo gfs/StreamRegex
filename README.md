@@ -8,7 +8,7 @@ Auto-Generated API Documentation is hosted on [GitHub Pages](https://gfs.github.
 
 ## Motivation
 
-When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
+Memory allocation is an expensive operation - in many cases it may be consuming more time than any other operation in your program. It may be the case that you want to check many arbitrarily large files without reading every file out into a string - an allocation expensive operation.  Using the extension methods here you can check your Stream or StreamReader directly with minimal allocations. For a 400MB file, on .NET 7 allocations can be reduced from 1.5GB to ~4KB - see [Benchmarks](#benchmarks)
 
 ## To use Regex
 Here is some simple sample code to get started
@@ -110,11 +110,11 @@ Regex myRegex = new Regex(expression);
 
 var bufferOptions = new SlidingBufferOptions()
 {
-    BufferSize = 8192, // The number of characters to check at a time
-    OverlapSize = 512, // Must be as long as your longest desired match 
+    BufferSize = 8192, // The number of characters to check at a time, default 4096
+    OverlapSize = 512, // Must be as long as your longest desired match, default 256
     DelegateOptions = new DelegateOptions()
     {
-        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch.
+        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch, default false
     }
 };
 
@@ -223,6 +223,15 @@ The benchmark results below are a selection of the results from the Benchmarks p
 * A Stream is generated of length `paddingSegmentLength * numberPaddingSegmentsBefore` + `paddingSegmentLength * numberPaddingSegmentsAfter` + the length of a target string. There is only one match for the target operation in the Stream.
 * The query used for both regex and string matching was `racecar` - no regex operators.
 * The `CompiledRegex` benchmark uses the `IsMatch` method of a Regex which is compiled before the test. The cost of converting the Stream into a String before operation is included.
+
+This benchmark iteration finds the only instance of `racecar` located 200MB into a 400MB Stream. Using the extension method is 16 times faster and allocates .2% of the memory (3.5 MB vs 1.5 GB). Memory usage is [configurable](#options).
+
+|         Method |           Mean |          Error |         StdDev |         Median |      Allocated | Alloc Ratio |       Gen0 |        Gen1 |      Gen2 |
+|--------------- |---------------:|---------------:|---------------:|---------------:|---------------:|------------:|-----------:|------------:|----------:|
+|  CompiledRegex | 583,033.010 us | 11,506.1290 us | 26,437.2449 us | 577,418.900 us |  1566069.45 KB |       1.000 |101000.0000 | 100000.0000 | 6000.0000 |
+| RegexExtension |  36,507.580 us |    592.8086 us |    554.5135 us |  36,490.900 us |     3446.19 KB |       0.002 |          - |           - |         - | 
+
+### Complete run details
 
 |         Method |      Job |  Runtime | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |           Mean |          Error |         StdDev |         Median | Ratio | RatioSD |        Gen0 |        Gen1 |      Gen2 |     Allocated | Alloc Ratio |
 |--------------- |--------- |--------- |--------------------- |---------------------------- |--------------------------- |---------------:|---------------:|---------------:|---------------:|------:|--------:|------------:|------------:|----------:|--------------:|------------:|
