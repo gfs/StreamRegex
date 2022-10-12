@@ -29,8 +29,8 @@ public static class IndexingExtensions
     /// <summary>
     /// Gets a Span of chars from the specified range in the <paramref name="target"/> <see cref="StreamReader"/>
     ///
-    /// If <paramref cref="end"/> is longer than the actual length of <see cref="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
-    /// If <paramref name="start"/> is Greater than <paramref cref="end"/> the resulting Span will be 0 length.
+    /// If <paramref name="end"/> is longer than the actual length of <paramref name="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
+    /// If <paramref name="start"/> is Greater than <paramref name="end"/> the resulting Span will be 0 length.
     /// </summary>
     /// <param name="target">The StreamReader to select from</param>
     /// <param name="start">The 0 indexed start to read from</param>
@@ -96,8 +96,8 @@ public static class IndexingExtensions
     /// <summary>
     /// Gets a Span of bytes from the specified range in the <paramref name="target"/> <see cref="Stream"/>
     ///
-    /// If <paramref cref="end"/> is longer than the actual length of <see cref="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
-    /// If <paramref name="start"/> is Greater than <paramref cref="end"/> the resulting Span will be 0 length.
+    /// If <paramref name="end"/> is longer than the actual length of <paramref name="target"/> the resulting Span will be the length of the actual characters from the stream without padding.
+    /// If <paramref name="start"/> is Greater than <paramref name="end"/> the resulting Span will be 0 length.
     /// </summary>
     /// <param name="target">The Stream to select from</param>
     /// <param name="start">The 0 indexed start to read from</param>
