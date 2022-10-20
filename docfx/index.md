@@ -3,16 +3,19 @@
 A .NET Library with Extension Methods for performing arbitrary checks on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
 
 The Extensions are available on Nuget: [https://www.nuget.org/packages/StreamRegex.Extensions/](https://www.nuget.org/packages/StreamRegex.Extensions/)
+
+Auto-Generated API Documentation is hosted on [GitHub Pages](https://gfs.github.io/StreamRegex/api/StreamRegex.Extensions.html).
+
 ## Motivation
 
-When dealing with large files it may be inconvenient or impractical to read the whole file into memory.
+Memory allocation is an expensive operation - in many cases it may be consuming more time than any other operation in your program. It may be the case that you want to check many arbitrarily large files without reading every file out into a string - an allocation expensive operation.  Using the extension methods here you can check your Stream or StreamReader directly with minimal allocations. For a 400MB file, on .NET 7 allocations can be reduced from 1.5GB to ~4MB - see [Benchmarks](#benchmarks)
 
 ## To use Regex
 Here is some simple sample code to get started
 ### StreamReader
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 
 // Construct your regex as normal
 Regex myRegex = new Regex(expression);
@@ -21,7 +24,7 @@ Regex myRegex = new Regex(expression);
 StreamReader reader = new StreamReader(stream);
 
 // Get matches
-StreamRegexMatchCollection matchCollection = myRegex.GetMatchCollection(reader);
+SlidingBufferMatchCollection<StreamRegexMatch> matchCollection = myRegex.GetMatchCollection(reader);
 if (matchCollection.Any())
 {
     foreach(StreamRegexMatch match in matchCollection)
@@ -63,10 +66,10 @@ else
 ```
 
 ### Stream
-You can also call the methods on a Stream directly. If you do so, a StreamReader will be created to read it.
+You can also call the methods on a Stream directly. If you do so, a StreamReader will be created to read it with `leaveOpen = true`, reading from the current position of the Stream. The Stream will not have its position reset after reading, and will not be closed or disposed.
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.RegexExtensions;
 
 // This stream contains the content you want to check
 Stream stream;
@@ -89,22 +92,52 @@ else
 }
 ```
 
+## Options
+You can adjust the internal buffer and overlap sizes, and capture the value that was matched as well as the Index using `SlidingBufferOptions`.
+
+* The `BufferSize` is the size of the internal `Span<char>` used for checking. 
+* The `OverlapSize` is the number of characters from the previous buffer to include at the start of the next to guarantee matches across boundaries.
+* If `CaptureValues` is set to true, `SlidingBufferMatch` objects (including `StreamRegexMatch` objects) will contain the value of the actual match in addition to the length. If false, match objects will only contain `Index` and `Length` of the match.
+
+```c#
+// Include this for the extension methods
+using StreamRegex.Extensions.RegexExtensions;
+// Include this for options objects
+using StreamRegex;
+
+// Construct your regex as normal
+Regex myRegex = new Regex(expression);
+
+var bufferOptions = new SlidingBufferOptions()
+{
+    BufferSize = 8192, // The number of characters to check at a time, default 4096
+    OverlapSize = 512, // Must be as long as your longest desired match, default 256
+    DelegateOptions = new DelegateOptions()
+    {
+        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch, default false
+    }
+};
+
+StreamRegexMatch match = myRegex.GetFirstMatch(reader, bufferOptions);
+```
+
 ## To use Custom Method
 You can provide your own custom methods for both boolean matches and match metadata.
 ### For Boolean Matches
+Implement the `IsMatch` delegate.
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 
-bool YourMethod(string chunk)
+bool YourMethod(ReadOnlySpan<char> chunk)
 {
     // Your logic here
 }
 
-if(reader.IsMatch(contentChunk => YourMethod(contentChunk))
+if(reader.IsMatch(YourMethod)
 {
     // Your method matched some chunk of the Stream
 }
@@ -114,29 +147,27 @@ else
 }
 ```
 ### For Value Data
+Implement the `GetFirstMatch` delegate.
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 
-string target = "Something";
-
 // Return the index of the target string relative to the chunk. 
 // It will be adjusted to the correct relative position for the Stream automatically.
-SlidingBufferMatch YourMethod(string chunk)
+SlidingBufferMatch YourMethod(ReadOnlySpan<char> chunk)
 {
-    var idx = contentChunk.IndexOf(target, comparison);
-    if (idx != -1)
+    if (SomeCheckOf(chunk))
     {
-        return new SlidingBufferMatch(true, idx, contentChunk[idx..(idx + target.Length)]);
+        return new SlidingBufferMatch(true, idx, target.Length);
     }
 
     return new SlidingBufferMatch();
 }
 
-var match = reader.GetFirstMatch(contentChunk => YourMethod(contentChunk);
+var match = reader.GetFirstMatch(YourMethod);
 if(match.Success)
 {
     // Your method matched some chunk of the Stream
@@ -148,23 +179,37 @@ else
 ```
 
 ### For a collection
+Implement the `GetMatchCollection` delegate.
 ```c#
 // Include this for the extension methods
-using StreamRegex.Extensions;
+using StreamRegex.Extensions.Core;
 
 // Create your stream reader
 StreamReader reader = new StreamReader(stream);
 // Your arbitrary engine that can generate multiple matches
-YourEngine engine = new MatchingEngine();
-public IEnumerable<SlidingBufferMatch> YourMethod(string arg)
+YourEngineHolder matchingEngine = new YourEngineHolder();
+
+public class YourEngineHolder
 {
-    foreach (Match match in engine.MakeMatches(arg))
+    private YourMatchingEngine _internalEngine;
+    
+    public YourEngineHolder()
     {
-        yield return new SlidingBufferMatch(true, match.Index, match.Value);
+        _internalEngine = new YourMatchingEngine();
+    }
+    
+    public SlidingBufferMatchCollection<SlidingBufferMatch> YourMethod(ReadOnlySpan<char> arg)
+    {
+        SlidingBufferMatchCollection<SlidingBufferMatch> matchCollection = new SlidingBufferMatchCollection<SlidingBufferMatch>();
+        foreach(var match in _internalEngine.MakeMatches(arg))
+        {
+            matchCollection.Add(match);
+        }
+        return matchCollection;
     }
 }
 
-var collection = reader.GetMatchCollection(contentChunk => YourMethod(contentChunk));
+var collection = reader.GetMatchCollection(matchingEngine.YourMethod);
 ```
 
 ## How it works
@@ -172,20 +217,77 @@ A sliding buffer is used across the stream. The `OverlapSize` parameter is the a
 
 https://github.com/gfs/StreamRegex/blob/fce9cdbbe5bdcf3629ece9547a4c5230b941d072/StreamRegex.Extensions/SlidingBufferExtensions.cs#L206-L245
 ## Benchmarks
-These benchmarks were run with a pre-release version of the library. 
+The benchmark results below are a selection of the results from the Benchmarks project in the repository.
 
-### Large File Test
-* This is a worst case scenario. A very large file (175MB) that contains what we want to find once at the very end.
+### Performance on Large Files
+* A Stream is generated of length `paddingSegmentLength * numberPaddingSegmentsBefore` + `paddingSegmentLength * numberPaddingSegmentsAfter` + the length of a target string. There is only one match for the target operation in the Stream.
 * The query used for both regex and string matching was `racecar` - no regex operators.
-* The benchmarks for CompiledRegex and SimpleString operations emulate existing behavior of reading the contents of the Stream into a string to be queried.
-* This library allocates significantly less memory and for Regular Expressions is faster.
+* The `CompiledRegex` benchmark uses the `IsMatch` method of a Regex which is compiled before the test. The cost of converting the Stream into a String before operation is included.
 
-|          Method | TestFileName |       Mean |    Error |   StdDev | Ratio |      Gen 0 |      Gen 1 |     Gen 2 | Allocated |
-|---------------- |------------- |-----------:|---------:|---------:|------:|-----------:|-----------:|----------:|----------:|
-|   CompiledRegex |    175MB.txt |   438.3 ms |  8.72 ms | 10.71 ms |  0.10 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-|  RegexExtension |    175MB.txt |   214.4 ms |  4.30 ms |  7.86 ms |  0.05 | 23000.0000 |          - |         - |    370 MB |
-|    SimpleString |    175MB.txt | 4,361.8 ms | 18.09 ms | 14.12 ms |  1.00 | 24000.0000 | 13000.0000 | 3000.0000 |    686 MB |
-| StringExtension |    175MB.txt | 4,379.5 ms | 16.09 ms | 12.56 ms |  1.00 | 22000.0000 |          - |         - |    366 MB |
+This benchmark iteration finds the only instance of `racecar` located 200MB into a 400MB Stream. Using the extension method is 16 times faster and allocates .2% of the memory (3.5 MB vs 1.5 GB). Memory usage is [configurable](#options).
+
+|         Method |           Mean |          Error |         StdDev |         Median |      Allocated | Alloc Ratio |       Gen0 |        Gen1 |      Gen2 |
+|--------------- |---------------:|---------------:|---------------:|---------------:|---------------:|------------:|-----------:|------------:|----------:|
+|  CompiledRegex | 583,033.010 us | 11,506.1290 us | 26,437.2449 us | 577,418.900 us |  1566069.45 KB |       1.000 |101000.0000 | 100000.0000 | 6000.0000 |
+| RegexExtension |  36,507.580 us |    592.8086 us |    554.5135 us |  36,490.900 us |     3446.19 KB |       0.002 |          - |           - |         - | 
+
+### Complete run details
+
+|         Method |      Job |  Runtime | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |           Mean |          Error |         StdDev |         Median | Ratio | RatioSD |        Gen0 |        Gen1 |      Gen2 |     Allocated | Alloc Ratio |
+|--------------- |--------- |--------- |--------------------- |---------------------------- |--------------------------- |---------------:|---------------:|---------------:|---------------:|------:|--------:|------------:|------------:|----------:|--------------:|------------:|
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                          0 |       3.042 us |      0.0623 us |      0.0692 us |       3.000 us |  1.00 |    0.00 |           - |           - |         - |       3.72 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                          0 |       5.275 us |      0.1016 us |      0.2120 us |       5.200 us |  1.72 |    0.09 |           - |           - |         - |      13.01 KB |        3.50 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                          0 |       4.869 us |      0.1014 us |      0.1929 us |       4.800 us |  1.00 |    0.00 |           - |           - |         - |       3.72 KB |        1.00 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                          0 |       8.277 us |      0.0868 us |      0.0725 us |       8.300 us |  1.67 |    0.09 |           - |           - |         - |      12.97 KB |        3.49 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                     100000 | 229,652.299 us | 13,387.8464 us | 39,264.2360 us | 237,164.200 us | 1.000 |    0.00 |  26000.0000 |  14000.0000 | 3000.0000 |  391532.95 KB |       1.000 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                     100000 |       7.082 us |      0.1441 us |      0.2561 us |       7.000 us | 0.000 |    0.00 |           - |           - |         - |      20.99 KB |       0.000 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                     100000 | 175,093.965 us |  4,755.8204 us | 13,947.9979 us | 179,085.000 us | 1.000 |    0.00 |  28000.0000 |  27000.0000 | 4000.0000 |  391541.21 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                     100000 |       9.673 us |      0.1966 us |      0.2692 us |       9.550 us | 0.000 |    0.00 |           - |           - |         - |      12.97 KB |       0.000 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                     200000 | 379,099.480 us |  5,632.3389 us |  5,268.4933 us | 380,197.000 us | 1.000 |    0.00 |  51000.0000 |  27000.0000 | 4000.0000 |  783045.12 KB |       1.000 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                           0 |                     200000 |       6.854 us |      0.1372 us |      0.2254 us |       6.800 us | 0.000 |    0.00 |           - |           - |         - |      20.99 KB |       0.000 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                     200000 | 270,276.005 us |  4,126.3805 us |  4,586.4610 us | 269,684.000 us | 1.000 |    0.00 |  52000.0000 |  51000.0000 | 5000.0000 |  783053.38 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                           0 |                     200000 |       9.623 us |      0.1776 us |      0.2181 us |       9.550 us | 0.000 |    0.00 |           - |           - |         - |      12.97 KB |       0.000 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                          0 | 215,746.261 us |  4,251.1636 us |  9,151.0782 us | 218,077.050 us |  1.00 |    0.00 |  26000.0000 |  14000.0000 | 3000.0000 |  391532.95 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                          0 | 100,541.920 us |    626.3890 us |    585.9247 us | 100,651.200 us |  0.47 |    0.02 |  25000.0000 |           - |         - |  209821.32 KB |        0.54 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                          0 | 162,793.479 us |  3,538.9523 us | 10,379.1345 us | 164,210.400 us |  1.00 |    0.00 |  28000.0000 |  27000.0000 | 4000.0000 |  391541.21 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                          0 |  18,836.267 us |    275.5123 us |    257.7143 us |  18,798.600 us |  0.11 |    0.01 |           - |           - |         - |    1729.58 KB |       0.004 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                     100000 | 443,359.960 us |  3,006.2274 us |  2,812.0270 us | 443,313.200 us |  1.00 |    0.00 |  51000.0000 |  27000.0000 | 4000.0000 |  783045.12 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                     100000 |  99,966.243 us |    695.0068 us |    616.1054 us |  99,911.750 us |  0.23 |    0.00 |  25000.0000 |           - |         - |   209828.8 KB |        0.27 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                     100000 | 281,541.238 us |  3,210.7039 us |  2,681.0832 us | 282,293.100 us |  1.00 |    0.00 |  52000.0000 |  51000.0000 | 5000.0000 |  783053.38 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                     100000 |  17,791.175 us |    174.7172 us |    250.5742 us |  17,728.250 us |  0.06 |    0.00 |           - |           - |         - |    1729.58 KB |       0.002 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                     200000 | 613,439.146 us |  2,974.8773 us |  2,484.1573 us | 612,968.000 us |  1.00 |    0.00 |  76000.0000 |  41000.0000 | 5000.0000 | 1174557.28 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      100000 |                     200000 |  99,295.113 us |    904.0865 us |    845.6830 us |  99,575.600 us |  0.16 |    0.00 |  25000.0000 |           - |         - |   209828.8 KB |        0.18 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                     200000 | 403,339.907 us |  3,835.0740 us |  3,587.3306 us | 403,236.500 us |  1.00 |    0.00 |  76000.0000 |  75000.0000 | 5000.0000 | 1174557.28 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      100000 |                     200000 |  18,868.003 us |    345.2631 us |    527.2533 us |  19,066.400 us |  0.05 |    0.00 |           - |           - |         - |    1729.58 KB |       0.001 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                          0 | 539,301.326 us | 10,709.1633 us | 13,543.6626 us | 540,457.200 us |  1.00 |    0.00 |  51000.0000 |  27000.0000 | 4000.0000 |  783045.12 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                          0 | 198,403.929 us |  1,498.7502 us |  1,328.6031 us | 198,428.800 us |  0.37 |    0.01 |  51000.0000 |           - |         - |  419629.63 KB |        0.54 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                          0 | 327,254.492 us |  6,484.1770 us | 11,010.6247 us | 328,614.500 us |  1.00 |    0.00 |  52000.0000 |  51000.0000 | 5000.0000 |  783053.38 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                          0 |  36,291.386 us |    412.4609 us |    365.6359 us |  36,257.100 us |  0.11 |    0.00 |           - |           - |         - |    3446.19 KB |       0.004 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                     100000 | 704,108.592 us |  8,045.8337 us |  6,718.6356 us | 706,813.300 us |  1.00 |    0.00 |  76000.0000 |  41000.0000 | 5000.0000 | 1174557.33 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                     100000 | 207,031.880 us |  2,753.0846 us |  2,575.2371 us | 207,081.400 us |  0.29 |    0.00 |  51000.0000 |           - |         - |  419636.62 KB |        0.36 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                     100000 | 437,730.544 us |  8,659.5221 us |  9,265.5917 us | 438,264.300 us |  1.00 |    0.00 |  76000.0000 |  75000.0000 | 5000.0000 | 1174557.28 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                     100000 |  34,265.146 us |    423.3306 us |    353.5002 us |  34,332.000 us |  0.08 |    0.00 |           - |           - |         - |    3446.19 KB |       0.003 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                     200000 | 893,739.307 us | 14,269.0380 us | 13,347.2670 us | 894,285.600 us |  1.00 |    0.00 | 100000.0000 |  54000.0000 | 5000.0000 | 1566061.23 KB |        1.00 |
+| RegexExtension | .NET 6.0 | .NET 6.0 |                 1000 |                      200000 |                     200000 | 204,772.836 us |  3,838.1073 us |  3,402.3821 us | 204,041.500 us |  0.23 |    0.01 |  51000.0000 |           - |         - |  419636.62 KB |        0.27 |
+|                |          |          |                      |                             | |                |                |                |                |       |         |             |             |           |               |             |
+|  CompiledRegex | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                     200000 | 583,033.010 us | 11,506.1290 us | 26,437.2449 us | 577,418.900 us |  1.00 |    0.00 | 101000.0000 | 100000.0000 | 6000.0000 | 1566069.45 KB |       1.000 |
+| RegexExtension | .NET 7.0 | .NET 7.0 |                 1000 |                      200000 |                     200000 |  36,507.580 us |    592.8086 us |    554.5135 us |  36,490.900 us |  0.06 |    0.00 |           - |           - |         - |    3446.19 KB |       0.002 |
 
 ### Async vs Sync
 
