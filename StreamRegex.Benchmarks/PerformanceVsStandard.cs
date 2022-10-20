@@ -71,6 +71,20 @@ public class PerformanceVsStandard
     {
         _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
         var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
+        var span = content.AsSpan();
+        var matches = _compiled.EnumerateMatches(span);
+        if (!matches.MoveNext())
+        {
+            throw new Exception($"The regex didn't match.");
+        }
+    }
+    
+    [BenchmarkCategory("Regex")]
+    [Benchmark]
+    public void CompiledRegexClassic()
+    {
+        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
         if (!_compiled.IsMatch(content))
         {
             throw new Exception($"The regex didn't match.");
