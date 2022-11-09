@@ -12,10 +12,8 @@ public class PerformanceVsStandard
 {
     private readonly Regex _compiled = new Regex(Pattern, RegexOptions.Compiled);
     private const string Pattern = "racecar";
-    //private Stream _stream = new MemoryStream();
     private Dictionary<(int, int, int), Stream> _streams = new();
 
-    private Dictionary<(int, int, int), string> _strings = new();
     // Does not contain e so cannot match racecar
     string chars = "abcdfghijklmnopqrstuvwxyz123456789";
     Random random = new Random();

@@ -23,7 +23,7 @@ public static class StreamRegexExtensionsAsync
     public static async Task<bool> IsMatchAsync(this IEnumerable<Regex> engines, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
         var methods = new RegexMethods(engines);
-        return await streamReaderToMatch.IsMatchAsync(methods.RegexIsMatchFunction, options);
+        return await streamReaderToMatch.IsMatchAsync(methods.RegexIsMatchDelegate, options);
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public static class StreamRegexExtensionsAsync
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this IEnumerable<Regex> engines, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
-        return (StreamRegexMatch)await streamReaderToMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchFunction);
+        return (StreamRegexMatch)await streamReaderToMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchDelegate);
     }
 
     /// <summary>
@@ -158,6 +158,6 @@ public static class StreamRegexExtensionsAsync
     public static async Task<SlidingBufferMatchCollection<SlidingBufferMatch>> GetMatchCollectionAsync(this IEnumerable<Regex> engines, StreamReader toMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
-        return await toMatch.GetMatchCollectionAsync(methods.RegexGetMatchCollectionFunction, options);
+        return await toMatch.GetMatchCollectionAsync(methods.RegexGetMatchCollectionDelegate, options);
     }
 }

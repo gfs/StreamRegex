@@ -17,61 +17,6 @@ internal class RegexMethods
         _engines = engines is RegexCache cache ? cache : new RegexCache(engines);
     }
 
-    /// <summary>
-    /// Used for Async methods which cannot use the Span based delegates
-    /// </summary>
-    /// <param name="arg"></param>
-    /// <returns></returns>
-    internal IEnumerable<StreamRegexMatch> RegexGetMatchCollectionFunction(string arg)
-    {
-        foreach (var engine in _engines)
-        {
-            MatchCollection matches = engine.Matches(arg);
-            foreach (Match match in matches)
-            {
-                yield return new StreamRegexMatch(engine, true, match.Index, match.Length, match.Value);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Used for Async methods which cannot use the Span based delegates
-    /// </summary>
-    /// <param name="arg"></param>
-    /// <returns></returns>
-    internal StreamRegexMatch RegexGetFirstMatchFunction(string arg)
-    {
-        foreach (var engine in _engines)
-        {
-            var match = engine.Match(arg);
-            if (match.Success)
-            {
-                return new StreamRegexMatch(engine, true, match.Index, match.Length, match.Value);
-            }
-        }
-
-        return new StreamRegexMatch(null);
-    }
-
-    /// <summary>
-    /// Used for Async methods which cannot use the Span based delegates
-    /// </summary>
-    /// <param name="arg"></param>
-    /// <returns></returns>
-    internal bool RegexIsMatchFunction(string arg)
-    {
-        foreach (var engine in _engines)
-        {
-            var match = engine.Match(arg);
-            if (match.Success)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     internal SlidingBufferMatchCollection<SlidingBufferMatch> RegexGetMatchCollectionDelegate(ReadOnlySpan<char> chunk, DelegateOptions delegateOptions)
     {
 #if NET7_0_OR_GREATER
