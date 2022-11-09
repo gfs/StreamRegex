@@ -6,7 +6,6 @@ using StreamRegex.Extensions.RegexExtensions;
 
 namespace StreamRegex.Benchmarks;
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.Net70)]
 [ExcludeFromCodeCoverage]
 public class PerformanceVsStandard
@@ -15,6 +14,8 @@ public class PerformanceVsStandard
     private const string Pattern = "racecar";
     //private Stream _stream = new MemoryStream();
     private Dictionary<(int, int, int), Stream> _streams = new();
+
+    private Dictionary<(int, int, int), string> _strings = new();
     // Does not contain e so cannot match racecar
     string chars = "abcdfghijklmnopqrstuvwxyz123456789";
     Random random = new Random();
@@ -64,10 +65,23 @@ public class PerformanceVsStandard
     [Params(zeroPadding, midPadding, longPadding)]
     public int numberPaddingSegmentsAfter { get; set; }
 
-
+    [BenchmarkCategory("Regex")]
+    [Benchmark]
+    public void JustReadTheStreamToString()
+    {
+        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
+        var span = content.AsSpan();
+        if (span.Length != _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)]
+                .Length)
+        {
+            throw new Exception();
+        }
+    }
+    
     [BenchmarkCategory("Regex")]
     [Benchmark(Baseline = true)]
-    public void CompiledRegex()
+    public void CompiledRegexWithSpan()
     {
         _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
         var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
@@ -78,18 +92,18 @@ public class PerformanceVsStandard
             throw new Exception($"The regex didn't match.");
         }
     }
-    
-    [BenchmarkCategory("Regex")]
-    [Benchmark]
-    public void CompiledRegexClassic()
-    {
-        _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
-        var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
-        if (!_compiled.IsMatch(content))
-        {
-            throw new Exception($"The regex didn't match.");
-        }
-    }
+    // Under the covers this calls the span regex apis on .net 7  
+    // [BenchmarkCategory("Regex")]
+    // [Benchmark]
+    // public void CompiledRegexWithString()
+    // {
+    //     _streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)].Position = 0;
+    //     var content = new StreamReader(_streams[(numberPaddingSegmentsBefore, numberPaddingSegmentsAfter, paddingSegmentLength)], leaveOpen: true).ReadToEnd();
+    //     if (!_compiled.IsMatch(content))
+    //     {
+    //         throw new Exception($"The regex didn't match.");
+    //     }
+    // }
     
     [BenchmarkCategory("Regex")]
     [Benchmark]
