@@ -121,7 +121,7 @@ public static class StreamRegexExtensionsAsync
     public static async Task<StreamRegexMatch> GetFirstMatchAsync(this IEnumerable<Regex> engines, StreamReader streamReaderToMatch, StreamRegexOptions? options = null)
     {
         RegexMethods methods = new RegexMethods(engines);
-        return (StreamRegexMatch)await streamReaderToMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchDelegate);
+        return (StreamRegexMatch)await streamReaderToMatch.GetFirstMatchAsync(methods.RegexGetFirstMatchDelegate, options);
     }
 
     /// <summary>
