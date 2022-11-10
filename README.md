@@ -280,7 +280,7 @@ We find that the majority of the operation time is spent on reading full Stream 
 
 ### Async vs Sync
 
-Because Span is not supported in async contexts async is a bit slower.
+Async reading from Streams is also fast and low allocation.
 
 |              Method | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |     Mean |    Error |   StdDev | Ratio | RatioSD | Allocated | Alloc Ratio |
 |-------------------- |--------------------- |---------------------------- |--------------------------- |---------:|---------:|---------:|------:|--------:|----------:|------------:|
