@@ -280,12 +280,12 @@ We find that the majority of the operation time is spent on reading full Stream 
 
 ### Async vs Sync
 
-Because Span is not supported in async contexts async is significantly slower.
+Async reading from Streams is also fast and low allocation.
 
-|              Method | TestFileName |     Mean |   Error |  StdDev | Ratio | RatioSD |      Gen 0 |     Gen 1 | Allocated |
-|-------------------- |------------- |---------:|--------:|--------:|------:|--------:|-----------:|----------:|----------:|
-|      RegexExtension |    175MB.txt | 193.3 ms | 2.93 ms | 2.74 ms |  1.00 |    0.00 | 23000.0000 |         - |    370 MB |
-| RegexExtensionAsync |    175MB.txt | 406.8 ms | 7.71 ms | 8.25 ms |  2.10 |    0.06 | 43000.0000 | 1000.0000 |    384 MB |
+|              Method | paddingSegmentLength | numberPaddingSegmentsBefore | numberPaddingSegmentsAfter |     Mean |    Error |   StdDev | Ratio | RatioSD | Allocated | Alloc Ratio |
+|-------------------- |--------------------- |---------------------------- |--------------------------- |---------:|---------:|---------:|------:|--------:|----------:|------------:|
+|      RegexExtension |                 1000 |                      200000 |                     200000 | 36.73 ms | 0.679 ms | 1.372 ms |  1.00 |    0.00 |   3.37MB |        1.00 |
+| RegexExtensionAsync |                 1000 |                      200000 |                     200000 | 47.92 ms | 0.671 ms | 0.628 ms |  1.28 |    0.05 |   3.37MB |        1.00 |
 
 ## License
 

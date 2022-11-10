@@ -35,7 +35,8 @@ public class AsyncExtensionTests
         var res = await compiled.GetFirstMatchAsync(StringToStream(ShortTestString), new StreamRegexOptions()
         {
             BufferSize = 4,
-            OverlapSize = 2
+            OverlapSize = 2,
+            DelegateOptions = new DelegateOptions(){ CaptureValues = true }
         });
         Assert.IsTrue(res.Success);
         Assert.AreEqual("45",res.Value);
@@ -51,7 +52,9 @@ public class AsyncExtensionTests
         var opts = new StreamRegexOptions()
         {
             BufferSize = 4,
-            OverlapSize = 2
+            OverlapSize = 2,
+            DelegateOptions = new DelegateOptions(){CaptureValues = true}
+
         };
         var collection = await compiled.GetMatchCollectionAsync(StringToStream("123456"), opts);
         Assert.AreEqual(1, collection.Count());
@@ -129,9 +132,13 @@ public class AsyncExtensionTests
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
         var prefix = string.Join(string.Empty,Enumerable.Repeat("z", 10000));
         var str = $"{prefix}racecar{prefix}";
-        var res = await compiled.GetFirstMatchAsync(StringToStream(str));
+        var res = await compiled.GetFirstMatchAsync(StringToStream(str), new StreamRegexOptions(){DelegateOptions = new DelegateOptions(){CaptureValues = true}});
         Assert.IsTrue(res.Success);
         Assert.AreEqual("racecar",res.Value);
+        res = await compiled.GetFirstMatchAsync(StringToStream(str));
+        Assert.IsTrue(res.Success);
+        Assert.IsNull(res.Value);
+
     }
 
     [TestMethod]
@@ -140,7 +147,7 @@ public class AsyncExtensionTests
         var compiled = new Regex(ShortPattern, RegexOptions.Compiled);
         var prefix = string.Join(string.Empty,Enumerable.Repeat("z", 10000));
         var str = $"{prefix}racecar{prefix}";
-        var res = await compiled.GetFirstMatchAsync(StringToStream(str));
+        var res = await compiled.GetFirstMatchAsync(StringToStream(str), new StreamRegexOptions(){DelegateOptions = new DelegateOptions(){CaptureValues = true}});
         var res2 = compiled.Match(str);
         Assert.IsTrue(res.Success);
         Assert.AreEqual("racecar",res.Value);

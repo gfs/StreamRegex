@@ -37,7 +37,8 @@ public static class StringMethodExtensionsAsync
     /// <returns>True if <paramref name="value"/> is contained in <paramref name="streamReaderToCheck"/></returns>
     public static async Task<bool> ContainsAsync(this StreamReader streamReaderToCheck, string value, StringComparison comparisonType = StringComparison.Ordinal, SlidingBufferOptions? options = null)
     {
-        return await streamReaderToCheck.IsMatchAsync(contentChunk => contentChunk.Contains(value, comparisonType), options);
+        var matcher = new StringMatcher(value, comparisonType);
+        return await streamReaderToCheck.IsMatchAsync(matcher.IsMatchDelegate, options);
     }
 
     /// <summary>
@@ -73,16 +74,9 @@ public static class StringMethodExtensionsAsync
         {
             opts.OverlapSize = value.Length;
         }
-        var match = await streamReaderToCheck.GetFirstMatchAsync(contentChunk =>
-        {
-            var idx = comparisonType is { } notNullComparison ? contentChunk.IndexOf(value, notNullComparison) : contentChunk.IndexOf(value);
-            if (idx != -1)
-            {
-                return new SlidingBufferMatch(true, idx, value.Length, contentChunk[idx..(idx + value.Length)]);
-            }
 
-            return new SlidingBufferMatch();
-        }, options);
+        var matcher = new StringMatcher(value, comparisonType ?? StringComparison.Ordinal);
+        var match = await streamReaderToCheck.GetFirstMatchAsync(matcher.GetFirstMatchDelegate);
         return match.Index;
     }
 }
