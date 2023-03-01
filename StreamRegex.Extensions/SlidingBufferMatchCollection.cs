@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace StreamRegex.Extensions;
 
 /// <summary>
-/// A collection holding unique <see cref="SlidingBufferMatch"/>. The backing collection is thread-safe and deduplicated.
+/// An ICollection holding unique <see cref="SlidingBufferMatch"/> objects. The backing collection is thread-safe and deduplicated.
 /// </summary>
 /// <typeparam name="T">The type must inherit from <see cref="SlidingBufferMatch"/></typeparam>
 public class SlidingBufferMatchCollection<T> : ICollection<T>, IReadOnlyCollection<T> where T : SlidingBufferMatch
@@ -41,6 +41,9 @@ public class SlidingBufferMatchCollection<T> : ICollection<T>, IReadOnlyCollecti
     /// </summary>
     public object SyncRoot => throw new NotSupportedException();
 
+    /// <summary>
+    /// Default constructor
+    /// </summary>
     public SlidingBufferMatchCollection() { }
 
     /// <summary>
