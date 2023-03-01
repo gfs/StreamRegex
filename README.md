@@ -116,7 +116,8 @@ var bufferOptions = new SlidingBufferOptions()
     OverlapSize = 512, // Must be as long as your longest desired match, default 256
     DelegateOptions = new DelegateOptions()
     {
-        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch, default false
+        CaptureValues = true // If the actual value matched by the Regex should be included in the SlidingBufferMatch, default false. 
+                             // When set to true Will allocate memory to store the captured values
     }
 };
 
@@ -228,7 +229,7 @@ The benchmark results below are a selection of the results from the Benchmarks p
 * The `Enumerate` benchmark uses the `EnumerateMatches` method of a Regex on a `Span<char>` of the Bytes of the Stream stopping after the first match is found. The cost of converting the Stream into a String before operation is included.
 * The `RegexExtension` benchmark uses the `IsMatch` extension method of a Regex on a `StreamReader` stopping after the first match is found.
 
-This benchmark iteration finds the only instance of `racecar` located 200MB into a 400MB Stream. Using the extension method is 12 times faster and allocates .2% of the memory. Memory usage is [configurable](#options).
+This benchmark iteration finds the only instance of `racecar` located 200MB into a 400MB Stream. Using the extension method is 12 times faster and allocates .2% of the memory. Memory usage is dependent on the [options](#options), and may vary with different buffer/overlap parameters or when `CaptureValues` is set to true.
 
 We find that the majority of the operation time is spent on reading full Stream to a string before operation, by comparison with the `JustReadTheStreamToString` benchmark.
 
