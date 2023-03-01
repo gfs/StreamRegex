@@ -1,4 +1,4 @@
-[![Nuget](https://img.shields.io/nuget/v/StreamRegex.Extensions)](https://www.nuget.org/packages/StreamRegex.Extensions/)
+[![Nuget](https://img.shields.io/nuget/v/StreamRegex.Extensions)](https://www.nuget.org/packages/StreamRegex.Extensions/) [![CodeQL](https://github.com/gfs/StreamRegex/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/gfs/StreamRegex/actions/workflows/codeql-analysis.yml)
 # StreamRegex
 A .NET Library with Extension Methods for performing arbitrary checks on the string content of Streams and StreamReaders, including built-in extension methods for Regex.
 
