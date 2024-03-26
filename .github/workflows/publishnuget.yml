@@ -17,18 +17,22 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: |
+          3.1.x
+          6.0.x
+          7.0.x
+          8.0.x
+        include-prerelease: true
     - name: Nerdbank.GitVersioning
-      # You may pin to the exact commit or the version.
-      # uses: dotnet/nbgv@49d4f35f34d895d282b99855b2e0034f8f608ba5
       uses: dotnet/nbgv@v0.4.0
       with:
         setAllVars: true
-      
-    - name: Restore dependencies
+    - name: Install dependencies
       run: dotnet restore
-    - name: Test Before Publish
-      run: dotnet test --verbosity normal -f net8.0
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
     - name: Build
       run: dotnet pack --no-restore StreamRegex.Extensions -o NuPkgs
     - name: Setup NuGet.exe for use with actions
