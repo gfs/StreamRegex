@@ -5,12 +5,13 @@
         <Nullable>enable</Nullable>
 		<LangVersion>10</LangVersion>
         <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+        <PackageReference Include="MSTest" Version="3.7.2" />
+        <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.5.2" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.13.1" />
     </ItemGroup>
 
     <ItemGroup>
