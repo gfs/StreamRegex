@@ -4,9 +4,9 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Authors>Gabe Stocco</Authors>
+        <Authors>Giulia Stocco</Authors>
         <Description>StreamRegex exposes a StreamRegexReader for checking regexes against Streams.</Description>
-        <Copyright>Gabe Stocco 2022</Copyright>
+        <Copyright>Giulia Stocco 2026</Copyright>
         <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
