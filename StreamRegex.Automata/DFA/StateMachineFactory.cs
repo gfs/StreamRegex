@@ -56,6 +56,11 @@ public static class StateMachineFactory
                 var last = states.Peek();
                 toAdd = new RepeatCharacterZeroPlusDfaState(last);
             }
+            else if (pattern[i].Equals('?'))
+            {
+                var last = states.Pop();
+                toAdd = new RepeatCharacterZeroOneDfaState(last);
+            }
             else
             {
                 throw new ArgumentException($"Invalid expression. {pattern[i]} is not currently supported.");

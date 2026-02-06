@@ -104,14 +104,14 @@ Created `AutomataBenchmarks.cs` comparing:
 **Supported Features**:
 - Literal characters
 - Character classes `[abc]`
-- Quantifiers: `*`, `+`
+- Quantifiers: `*`, `+`, `?` (optional)
 - Any character `.`
 - Escaped characters
 
 **Unsupported Features**:
 - Anchors (`^`, `$`)
 - Alternation (`|`) and grouping/capture semantics
-- Quantifier breadth: optional `?` and counted ranges `{m,n}`
+- Quantifier breadth: counted ranges `{m,n}`
 - Character class ranges/negation shorthand (`\d`, `\w`, `\s`, `[^...]`, Unicode categories)
 - Regex options (case-insensitive, multiline/singleline, culture invariance)
 - Lookahead/lookbehind, backreferences, and backtracking support
@@ -128,13 +128,11 @@ Created `AutomataBenchmarks.cs` comparing:
 
 **Key Differences from DFA**:
 - Uses singleton pattern for `NopNfaState` (correct implementation)
-- Supports `?` (optional) quantifier
 - Tracks multiple active states simultaneously
 - More memory overhead but handles non-deterministic transitions
 
 **Advantages over DFA**:
 - Already had correct singleton pattern
-- Supports optional quantifier
 - Better suited for complex patterns
 
 ## Accuracy Assessment
@@ -169,6 +167,11 @@ Created `AutomataBenchmarks.cs` comparing:
 1. **State Machine Overhead**: Construction cost for each pattern
 2. **Limited Optimizations**: Standard regex engines are highly optimized
 3. **Feature Gaps**: Can't handle complex patterns
+
+### Near-term Optimization Ideas
+- Reuse compiled state machines instead of rebuilding per call.
+- Reduce per-byte virtual dispatch and consider simple skipping/vectorization in transitions.
+- Add lightweight validation to reject unsupported patterns early.
 
 ### Benchmark Needed
 - Latest run (Feb 2026, host .NET 10, pattern `racecar`, baseline is sliding-buffer `Regex.IsMatch` on `StreamReader`):
