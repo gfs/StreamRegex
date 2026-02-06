@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Text.Unicode;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using StreamRegex.Lib;
 using StreamRegex.Lib.DFA;
 using StreamRegex.Lib.NFA;
@@ -10,35 +10,33 @@ using StreamRegex.Lib.NFA;
 namespace StreamRegex.Tests;
 
 [ExcludeFromCodeCoverage]
-[Ignore]
-[TestClass]
 public class UnitTest1
 {
     private const string ShortTestString = "12345rararaceeecarrrra";
     private const string ShortPattern = "[ra]*ce+c[ar]+";
     private const string OptionalPattern = "[ra]*?ce+c[ar]+";
 
-    [TestMethod]
+    [Fact(Skip = "Ignored test")]
     public void TestShortTestString()
     {
         var stream = StringToStream(ShortTestString);
         var stateMachine = NfaStateMachineFactory.CreateStateMachine(ShortPattern);
-        Assert.AreEqual(5, stateMachine.GetFirstMatchPosition(stream));
+        Assert.Equal(5, stateMachine.GetFirstMatchPosition(stream));
     }
     
-    [TestMethod]
+    [Fact(Skip = "Ignored test")]
     public void TestStateMachineValidation()
     {
         var stateMachine = StateMachineFactory.CreateStateMachine(ShortPattern);
-        Assert.IsTrue(stateMachine.ValidateStateMachine());
+        Assert.True(stateMachine.ValidateStateMachine());
     }
     
-    [TestMethod]
+    [Fact(Skip = "Ignored test")]
     public void TestOptionalTestString()
     {
         var stream = StringToStream(ShortTestString);
         var stateMachine = NfaStateMachineFactory.CreateStateMachine(OptionalPattern);
-        Assert.AreEqual(5, stateMachine.GetFirstMatchPosition(stream));
+        Assert.Equal(5, stateMachine.GetFirstMatchPosition(stream));
     }
 
     private Stream StringToStream(string str)
