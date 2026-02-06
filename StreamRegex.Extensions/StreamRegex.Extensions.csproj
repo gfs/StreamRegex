@@ -10,8 +10,8 @@
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
         <PackageTags>Regex, Stream, StreamReader, Parsing, Span</PackageTags>
-        <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.1</TargetFrameworks>
-        <LangVersion>10</LangVersion>
+        <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
