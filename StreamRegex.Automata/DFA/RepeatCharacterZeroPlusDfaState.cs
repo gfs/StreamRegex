@@ -18,6 +18,12 @@ public class RepeatCharacterZeroPlusDfaState : BaseDfaState
     {
         if (_previousDfaState.Accepts(character))
         {
+            // If both the repeat pattern and the next state accept this character,
+            // and the next state is final, transition to final (end the match)
+            if (Success.Accepts(character) && Success.IsFinal)
+            {
+                return Success.Transition(character);
+            }
             return this;
         }
         if (Success.Accepts(character))

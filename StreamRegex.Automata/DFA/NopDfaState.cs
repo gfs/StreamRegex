@@ -1,8 +1,10 @@
-﻿namespace StreamRegex.Lib.DFA;
+namespace StreamRegex.Lib.DFA;
 
 public class NopDfaState : BaseDfaState
 {
-    public NopDfaState()
+    public static readonly NopDfaState Instance = new NopDfaState();
+
+    private NopDfaState()
     {
         Success = this;
         Failure = this;

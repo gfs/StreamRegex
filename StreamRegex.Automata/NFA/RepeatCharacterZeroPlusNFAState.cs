@@ -22,7 +22,7 @@ public class RepeatCharacterZeroPlusNfaState : BaseNfaState
 
         if (prev && next)
         {
-            _returnOnBoth ??= Success.Transition(character).Append(Success).ToArray();
+            return _returnOnBoth ??= Success.Transition(character).Append(Success).ToArray();
         }
         if (prev)
         {
