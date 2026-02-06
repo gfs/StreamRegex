@@ -10,7 +10,6 @@
   <PropertyGroup>
     <!-- MSTest config -->
     <EnableMSTestRunner>true</EnableMSTestRunner>
-    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <MSTestAnalysisMode>Recommended</MSTestAnalysisMode>
   </PropertyGroup>
 </Project>
