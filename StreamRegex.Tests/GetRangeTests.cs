@@ -1,15 +1,14 @@
 using System;
 using System.IO;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using StreamRegex.Extensions.Indexing;
 
 namespace StreamRegex.Tests;
 
-[TestClass]
 public class GetRangeTests
 {
-    [TestMethod]
+    [Fact]
     public void GetRangeStreamOutOfRange()
     {
         var content = "racecar";
@@ -22,10 +21,10 @@ public class GetRangeTests
             idx++;
         }
         var streamOfContent = StringToStream(content);
-        Assert.ThrowsException<IndexOutOfRangeException>(() => streamOfContent.GetRange(toFetch));
+        Assert.Throws<IndexOutOfRangeException>(() => streamOfContent.GetRange(toFetch));
     }
     
-    [TestMethod]
+    [Fact]
     public void GetRangeStream()
     {
         var content = "racecar";
@@ -39,10 +38,10 @@ public class GetRangeTests
         }
         var streamOfContent = StringToStream(content);
         var fetched = streamOfContent.GetRange(toFetch);
-        Assert.AreEqual(Encoding.UTF8.GetString(bytesOfContent[toFetch]), Encoding.UTF8.GetString(fetched));
+        Assert.Equal(Encoding.UTF8.GetString(bytesOfContent[toFetch]), Encoding.UTF8.GetString(fetched));
     }
     
-    [TestMethod]
+    [Fact]
     public void GetRangeStreamReader()
     {
         var content = "racecar";
@@ -51,17 +50,17 @@ public class GetRangeTests
         var streamOfContent = StringToStream(content);
         var streamReaderOfContent = new StreamReader(streamOfContent);
         var fetched = streamReaderOfContent.GetRange(toFetch);
-        Assert.AreEqual(charsOfContent.ToString(), fetched.ToString());
+        Assert.Equal(charsOfContent.ToString(), fetched.ToString());
     }
     
-    [TestMethod]
+    [Fact]
     public void GetRangeStreamReaderOutOfRange()
     {
         var content = "racecar";
         Range toFetch = 2..1000;
         var streamOfContent = StringToStream(content);
         var streamReaderOfContent = new StreamReader(streamOfContent);
-        Assert.ThrowsException<IndexOutOfRangeException>(() => streamReaderOfContent.GetRange(toFetch));
+        Assert.Throws<IndexOutOfRangeException>(() => streamReaderOfContent.GetRange(toFetch));
     }
     
     private Stream StringToStream(string str)
