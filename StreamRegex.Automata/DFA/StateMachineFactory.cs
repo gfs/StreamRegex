@@ -10,7 +10,7 @@ public static class StateMachineFactory
     public static DfaStreamRegex CreateStateMachine(string pattern)
     {
         Stack<IDfaState> states = new();
-        IDfaState initialDfaState = new NopDfaState();
+        IDfaState initialDfaState = NopDfaState.Instance;
         for (int i = 0; i < pattern.Length; i++)
         {
             IDfaState? toAdd;
