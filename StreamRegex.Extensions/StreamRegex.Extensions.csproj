@@ -3,9 +3,9 @@
     <PropertyGroup>
         <Nullable>enable</Nullable>
         <Title>StreamRegex.Extensions</Title>
-        <Authors>Gabe Stocco</Authors>
+        <Authors>Giulia Stocco</Authors>
         <Description>A .NET Library with Extension Methods for performing arbitrary operations on the string content of Streams and StreamReaders, including built-in extension methods for Regex.</Description>
-        <Copyright>Gabe Stocco 2022</Copyright>
+        <Copyright>Giulia Stocco 2026</Copyright>
         <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>

@@ -4,10 +4,9 @@
         <TargetFrameworks>net8.0;net9.0;net10.0;netstandard2.1</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
-        <Authors>Gabe Stocco</Authors>
+        <Authors>Giulia Stocco</Authors>
         <Description>StreamRegex exposes a StreamRegexReader for checking regexes against Streams.</Description>
-        <Copyright>Gabe Stocco 2022</Copyright>
+        <Copyright>Giulia Stocco 2026</Copyright>
         <PackageProjectUrl>https://github.com/gfs/StreamRegex</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/gfs/StreamRegex/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/gfs/StreamRegex</RepositoryUrl>
