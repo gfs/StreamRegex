@@ -143,6 +143,22 @@ public class DfaStateMachineTests
         Assert.Equal(0, stateMachine.GetFirstMatchPosition(stream));
     }
 
+    [Fact]
+    public void TestOptionalQuantifier()
+    {
+        var stream = StringToStream("abc");
+        var stateMachine = StateMachineFactory.CreateStateMachine("ab?c");
+        Assert.Equal(0, stateMachine.GetFirstMatchPosition(stream));
+    }
+
+    [Fact]
+    public void TestOptionalQuantifierNoOptionalChar()
+    {
+        var stream = StringToStream("ac");
+        var stateMachine = StateMachineFactory.CreateStateMachine("ab?c");
+        Assert.Equal(0, stateMachine.GetFirstMatchPosition(stream));
+    }
+
     private Stream StringToStream(string str)
     {
         return new MemoryStream(Encoding.UTF8.GetBytes(str));

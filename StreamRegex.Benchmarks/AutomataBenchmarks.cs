@@ -10,7 +10,7 @@ using StreamRegex.Lib.NFA;
 namespace StreamRegex.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.HostProcess)]
 [ExcludeFromCodeCoverage]
 public class AutomataBenchmarks
 {

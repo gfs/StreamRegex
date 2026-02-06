@@ -10,7 +10,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var summary = BenchmarkRunner.Run<AsyncVsSyncBenchmarks>();
+        BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }    
 }
 // NFATest();
@@ -57,4 +57,3 @@ public class Program
 //        Console.WriteLine("Found match {0} at {1}", match.matched, match.position);
 //    }
 //}
-
