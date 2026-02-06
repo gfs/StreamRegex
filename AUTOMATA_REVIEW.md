@@ -110,13 +110,13 @@ Created `AutomataBenchmarks.cs` comparing:
 
 **Unsupported Features**:
 - Anchors (`^`, `$`)
-- Lookahead/lookbehind
-- Capture groups
-- Alternation `|`
-- Optional `?` quantifier
-- Backreferences
-- Word boundaries
-- And many other standard regex features
+- Alternation (`|`) and grouping/capture semantics
+- Quantifier breadth: optional `?` and counted ranges `{m,n}`
+- Character class ranges/negation shorthand (`\d`, `\w`, `\s`, `[^...]`, Unicode categories)
+- Regex options (case-insensitive, multiline/singleline, culture invariance)
+- Lookahead/lookbehind, backreferences, and backtracking support
+- Word boundaries and other zero-width assertions
+- Achieving basic regex compatibility will require parser support plus engine changes for the above; unsupported patterns should be rejected until implemented.
 
 ### NFA Implementation
 
@@ -171,11 +171,12 @@ Created `AutomataBenchmarks.cs` comparing:
 3. **Feature Gaps**: Can't handle complex patterns
 
 ### Benchmark Needed
-Run `AutomataBenchmarks` to measure actual performance:
-```bash
-cd StreamRegex.Benchmarks
-dotnet run -c Release
-```
+- Latest run (Feb 2026, host .NET 10, pattern `racecar`, baseline is sliding-buffer `Regex.IsMatch` on `StreamReader`):
+  - 1,000 bytes: StandardRegexWithStreamReader ≈ 13µs, DFA ≈ 67µs (~5x slower), NFA ≈ 43µs (~3x slower). Standard allocates ~13KB; DFA/NFA allocate 0.
+  - 100,000 bytes: Standard ≈ 55µs, DFA ≈ 319µs (~6x slower), NFA ≈ 1.31ms (~25x slower). Standard allocates ~14KB; DFA/NFA allocate 0.
+  - 1,000,000 bytes: Standard ≈ 154µs, DFA ≈ 1.79ms (~12x slower), NFA ≈ 11.07ms (~72x slower). Standard allocates ~21KB; DFA/NFA allocate 0.
+- Interpretation: the sliding regex implementation (baseline) is still materially faster for these scenarios even though automata avoid allocations; automata overhead dominates for simple patterns.
+- Rerun with: `cd StreamRegex.Benchmarks && NBGV_GitEngine=Disabled dotnet run -c Release -- --filter "*AutomataBenchmarks*"`
 
 ## Recommendations
 
