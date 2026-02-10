@@ -35,4 +35,6 @@ jobs:
     - name: Build
       run: dotnet pack --no-restore StreamRegex.Extensions -o NuPkgs
     - name: Nuget Publish
-      run: dotnet nuget push NuPkgs/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push NuPkgs/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json --skip-duplicate
+      env:
+        NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
