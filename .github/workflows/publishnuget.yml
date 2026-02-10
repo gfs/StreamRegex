@@ -34,9 +34,5 @@ jobs:
       run: dotnet test --no-restore --verbosity normal
     - name: Build
       run: dotnet pack --no-restore StreamRegex.Extensions -o NuPkgs
-    - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v1.0.5
-      with:
-        nuget-api-key: ${{secrets.NUGET_API_KEY}}
     - name: Nuget Publish
-      run: nuget push NuPkgs/*.*nupkg -Source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push NuPkgs/*.nupkg --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
